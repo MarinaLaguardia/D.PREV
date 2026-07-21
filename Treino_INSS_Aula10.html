@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#085041">
+<title>Treino INSS · Aula 10 — História da Seguridade</title>
+<style>
+  :root{
+    --paper:#F4F2EA; --card:#FFFFFF; --ink:#26251F; --ink-2:#5C5A50;
+    --teal:#085041; --teal-2:#0F6E56; --teal-soft:#E1F5EE;
+    --red:#A32222; --red-soft:#FCEBEB;
+    --amber:#B45309; --amber-soft:#FAEEDA;
+    --line:#DAD7CB; --radius:14px;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html{font-size:16px}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    background:var(--paper); color:var(--ink); min-height:100vh;
+    min-height:100dvh; display:flex; flex-direction:column;
+  }
+  header{
+    background:var(--teal); color:#fff; padding:14px 18px calc(14px);
+    padding-top:calc(14px + env(safe-area-inset-top));
+    display:flex; align-items:baseline; justify-content:space-between; gap:10px;
+  }
+  header h1{font-size:1.02rem; font-weight:700; letter-spacing:.01em}
+  header .sub{font-size:.72rem; opacity:.85; font-weight:500; letter-spacing:.08em; text-transform:uppercase}
+  main{flex:1; width:100%; max-width:680px; margin:0 auto; padding:16px 14px 90px}
+
+  /* ---------- telas ---------- */
+  .tela{display:none}
+  .tela.ativa{display:block; animation:entra .25s ease}
+  @keyframes entra{from{opacity:0; transform:translateY(6px)}to{opacity:1; transform:none}}
+  @media (prefers-reduced-motion: reduce){ .tela.ativa{animation:none} .carimbo{animation:none!important} }
+
+  /* ---------- início ---------- */
+  .painel{background:var(--card); border:1px solid var(--line); border-radius:var(--radius); padding:18px 16px; margin-bottom:14px}
+  .painel h2{font-size:1.05rem; color:var(--teal); margin-bottom:6px}
+  .painel p{font-size:.9rem; color:var(--ink-2); line-height:1.5}
+  .stats-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-top:12px}
+  .stat{background:var(--teal-soft); border-radius:10px; padding:10px 8px; text-align:center}
+  .stat b{display:block; font-size:1.35rem; color:var(--teal)}
+  .stat span{font-size:.68rem; color:var(--teal-2); letter-spacing:.05em; text-transform:uppercase; font-weight:600}
+  .opcoes-treino{display:flex; flex-direction:column; gap:10px; margin-top:14px}
+  .btn{
+    font:inherit; border:0; cursor:pointer; border-radius:12px; padding:14px 16px;
+    font-weight:700; font-size:.95rem; width:100%; text-align:left;
+    display:flex; justify-content:space-between; align-items:center; gap:8px;
+    transition:transform .08s ease, filter .12s ease;
+  }
+  .btn:active{transform:scale(.985)}
+  .btn:focus-visible{outline:3px solid var(--amber); outline-offset:2px}
+  .btn-primario{background:var(--teal); color:#fff}
+  .btn-suave{background:var(--card); color:var(--teal); border:1.5px solid var(--teal-2)}
+  .btn-ambar{background:var(--amber-soft); color:var(--amber); border:1.5px solid var(--amber)}
+  .btn small{font-weight:500; font-size:.75rem; opacity:.8}
+  .btn[disabled]{opacity:.4; cursor:default}
+  .linha-toggle{display:flex; align-items:center; justify-content:space-between; padding:10px 2px; font-size:.9rem}
+  .chave{position:relative; width:48px; height:28px; border-radius:14px; background:var(--line); border:0; cursor:pointer; transition:background .15s}
+  .chave::after{content:""; position:absolute; top:3px; left:3px; width:22px; height:22px; border-radius:50%; background:#fff; transition:left .15s; box-shadow:0 1px 3px rgba(0,0,0,.25)}
+  .chave[aria-checked="true"]{background:var(--teal-2)}
+  .chave[aria-checked="true"]::after{left:23px}
+
+  /* ---------- questão ---------- */
+  .progresso{display:flex; align-items:center; gap:10px; margin-bottom:12px; font-size:.78rem; color:var(--ink-2); font-weight:600}
+  .barra{flex:1; height:8px; background:var(--line); border-radius:4px; overflow:hidden}
+  .barra i{display:block; height:100%; background:var(--teal-2); border-radius:4px; transition:width .25s ease}
+  .placar{white-space:nowrap}
+  .placar .ok{color:var(--teal-2)} .placar .no{color:var(--red)}
+
+  .q-card{background:var(--card); border:1px solid var(--line); border-radius:var(--radius); padding:16px; position:relative; overflow:hidden}
+  .q-banca{display:inline-block; background:#EEEDFE; color:#3C3489; font-size:.68rem; font-weight:700; letter-spacing:.04em; padding:4px 10px; border-radius:7px; margin-bottom:10px; max-width:100%}
+  .q-enun{font-size:.98rem; line-height:1.6}
+  .q-opts{list-style:none; margin-top:14px; display:flex; flex-direction:column; gap:8px}
+  .q-opts button{
+    font:inherit; width:100%; text-align:left; background:var(--paper); border:1.5px solid var(--line);
+    border-radius:10px; padding:11px 12px; font-size:.9rem; line-height:1.45; cursor:pointer; color:var(--ink);
+    display:flex; gap:8px; transition:border-color .12s, background .12s;
+  }
+  .q-opts button:focus-visible{outline:3px solid var(--amber); outline-offset:1px}
+  .q-opts button b{color:var(--teal-2); flex-shrink:0}
+  .q-opts button.certa{background:var(--teal-soft); border-color:var(--teal-2)}
+  .q-opts button.errada{background:var(--red-soft); border-color:var(--red)}
+  .ce-botoes{display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:16px}
+  .ce-botoes button{
+    font:inherit; border:2px solid; border-radius:12px; padding:16px 10px; font-size:1.05rem; font-weight:800;
+    letter-spacing:.06em; cursor:pointer; background:var(--card); transition:transform .08s;
+  }
+  .ce-botoes button:active{transform:scale(.97)}
+  .ce-botoes button:focus-visible{outline:3px solid var(--amber); outline-offset:2px}
+  .ce-certo{color:var(--teal-2); border-color:var(--teal-2)}
+  .ce-errado{color:var(--red); border-color:var(--red)}
+
+  /* carimbo — assinatura do app */
+  .carimbo{
+    position:absolute; top:14px; right:-8px; transform:rotate(12deg) scale(1);
+    font-weight:900; font-size:1.5rem; letter-spacing:.12em; padding:6px 18px;
+    border:4px solid; border-radius:8px; opacity:0; pointer-events:none;
+    text-transform:uppercase; background:rgba(255,255,255,.88);
+    animation:bate .35s cubic-bezier(.2,1.6,.4,1) forwards;
+  }
+  @keyframes bate{0%{opacity:0; transform:rotate(20deg) scale(2)}100%{opacity:.95; transform:rotate(12deg) scale(1)}}
+  .carimbo.ok{color:var(--teal-2); border-color:var(--teal-2)}
+  .carimbo.no{color:var(--red); border-color:var(--red)}
+
+  .feedback{margin-top:14px; display:none}
+  .feedback.mostra{display:block; animation:entra .2s ease}
+  .gabarito{font-weight:800; font-size:.95rem; padding:10px 12px; border-radius:10px; margin-bottom:10px}
+  .gabarito.ok{background:var(--teal-soft); color:var(--teal)}
+  .gabarito.no{background:var(--red-soft); color:var(--red)}
+  .comentario{background:var(--paper); border-left:4px solid var(--amber); border-radius:0 10px 10px 0; padding:12px 12px; font-size:.87rem; line-height:1.6; color:var(--ink-2); max-height:280px; overflow-y:auto}
+  .comentario b{color:var(--amber)}
+
+  .rodape-fixo{
+    position:fixed; left:0; right:0; bottom:0; padding:10px 14px calc(10px + env(safe-area-inset-bottom));
+    background:linear-gradient(to top, var(--paper) 70%, transparent); display:none; justify-content:center;
+  }
+  .rodape-fixo.mostra{display:flex}
+  .rodape-fixo button{max-width:680px}
+
+  /* ---------- resultado ---------- */
+  .resultado-nota{font-size:3rem; font-weight:900; color:var(--teal); text-align:center; margin:6px 0}
+  .resultado-frase{text-align:center; color:var(--ink-2); font-size:.92rem; margin-bottom:14px}
+  .lista-erradas{margin-top:10px; font-size:.85rem; color:var(--ink-2); line-height:1.7}
+  .lista-erradas b{color:var(--red)}
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <h1>Treino INSS · Aula 10</h1>
+    <div class="sub">Evolução histórica · Brasil e mundo</div>
+  </div>
+  <div class="sub" id="hdr-contador"></div>
+</header>
+<main>
+
+  <!-- TELA INÍCIO -->
+  <section class="tela ativa" id="tela-inicio" aria-label="Início">
+    <div class="painel">
+      <h2>Bora treinar, Marina? 💚</h2>
+      <p>A aula da linha do tempo — seu cluster prioritário! De Bismarck ao INSS, passando por Eloy Chaves, CAPs, IAPs e o par INPS×IAPAS. Meta: transformar o maior bolsão de erros de hoje no seu ponto forte. 📜</p>
+      <div class="stats-grid">
+        <div class="stat"><b id="st-total">0</b><span>questões</span></div>
+        <div class="stat"><b id="st-ce">0</b><span>certo/errado</span></div>
+        <div class="stat"><b id="st-me">0</b><span>múltipla escolha</span></div>
+      </div>
+    </div>
+    <div class="painel">
+      <div class="linha-toggle">
+        <span>Embaralhar questões</span>
+        <button class="chave" id="tg-embaralhar" role="switch" aria-checked="true" aria-label="Embaralhar questões"></button>
+      </div>
+      <div class="linha-toggle">
+        <span>Apenas Certo/Errado (estilo CESPE)</span>
+        <button class="chave" id="tg-so-ce" role="switch" aria-checked="false" aria-label="Apenas questões Certo ou Errado"></button>
+      </div>
+    </div>
+    <div class="opcoes-treino">
+      <button class="btn btn-primario" id="bt-iniciar">Começar treino completo <span>▶</span></button>
+      <button class="btn btn-ambar" id="bt-erradas">Refazer só as que errei <small id="qt-erradas"></small></button>
+      <button class="btn btn-suave" id="bt-zerar">Zerar histórico de acertos</button>
+    </div>
+  </section>
+
+  <!-- TELA QUESTÃO -->
+  <section class="tela" id="tela-questao" aria-label="Questão">
+    <div class="progresso">
+      <span id="pg-num"></span>
+      <div class="barra"><i id="pg-fill" style="width:0%"></i></div>
+      <span class="placar"><span class="ok" id="pl-ok">0</span> · <span class="no" id="pl-no">0</span></span>
+    </div>
+    <div class="q-card" id="q-card">
+      <span class="q-banca" id="q-banca"></span>
+      <p class="q-enun" id="q-enun"></p>
+      <ul class="q-opts" id="q-opts"></ul>
+      <div class="ce-botoes" id="q-ce" style="display:none">
+        <button class="ce-certo" data-r="C">CERTO</button>
+        <button class="ce-errado" data-r="E">ERRADO</button>
+      </div>
+      <div class="feedback" id="q-fb">
+        <div class="gabarito" id="q-gab"></div>
+        <div class="comentario" id="q-com"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TELA RESULTADO -->
+  <section class="tela" id="tela-fim" aria-label="Resultado">
+    <div class="painel">
+      <h2 style="text-align:center">Fim do treino!</h2>
+      <div class="resultado-nota" id="fim-nota"></div>
+      <p class="resultado-frase" id="fim-frase"></p>
+      <div class="stats-grid">
+        <div class="stat"><b id="fim-ok">0</b><span>acertos</span></div>
+        <div class="stat"><b id="fim-no">0</b><span>erros</span></div>
+        <div class="stat"><b id="fim-pct">0%</b><span>aproveitamento</span></div>
+      </div>
+      <div class="lista-erradas" id="fim-erradas"></div>
+    </div>
+    <div class="opcoes-treino">
+      <button class="btn btn-ambar" id="bt-refazer-erradas">Refazer as que errei agora</button>
+      <button class="btn btn-primario" id="bt-voltar">Voltar ao início</button>
+    </div>
+  </section>
+
+</main>
+<div class="rodape-fixo" id="rodape">
+  <button class="btn btn-primario" id="bt-proxima" style="justify-content:center">Próxima questão →</button>
+</div>
+
+<script>
+const QUESTOES = [{"banca":"CESPE – SLU DF - 2019","enun":"Acerca da história da seguridade social, da política social e das políticas setoriais, considerando suas respectivas legislações, julgue o item subsecutivo. Os direitos da seguridade social, seja no modelo bismarckiano, seja no modelo beveridgiano, têm como parâmetro histórico central os direitos do trabalho. ( ) Certo ( ) Errado C OMENTÁRIOS: CORRETA. Os modelos apresentados durante a evolução da seguridade social no mundo tinham, entre os objetivos base, garantir benefícios aos trabalhadores que estavam impossibilitados de trabalhar. Neste contexto, podemos citar tanto os planos que seguiram o modelo bismarckiano quanto os que seguiram o modelo beveridgiano.","opts":null,"gab":"C","tipo":"CE","com":"Sem comentário detalhado no PDF para esta questão. Confira o gabarito e, em caso de dúvida, revisite a linha do tempo na teoria.","region":"teoria","n":1},{"banca":"CESPE – PGE AM - 2016","enun":"A respeito do surgimento e da evolução da seguridade social, julgue o item a seguir. A Constituição Mexicana de 1917 e a Constituição de Weimar de 1919, ao constitucionalizar um conjunto de direitos sociais, colocando-os no mesmo plano dos direitos civis, marcaram o início da fase de consolidação da seguridade social. ( ) Certo ( ) Errado","opts":null,"gab":"C","tipo":"CE","com":"CORRETA. Tanto a Constituição Mexicana de 1917 quanto a Constituição de Weimar de 1919 surgiram em um contexto histórico de evolução de um estado liberal para um estado de proteção social. Essas foram as primeiras constituições a inserirem em seus textos direitos de segunda geração, incluindo direitos trabalhistas e de previdência social. Desta forma, ambas as constituições marcaram o início da fase de consolidação da seguridade social.","region":"teoria","n":2},{"banca":"CESPE – Câmara dos Deputados - 2014","enun":"Com relação à evolução histórica e à organização institucional da previdência social, julgue o item a seguir. A Constituição de Weirmar, de 1919, foi o primeiro diploma legal de magnitude constitucional em que se tratou de tema previdenciário. ( ) Certo ( ) Errado","opts":null,"gab":"E","tipo":"CE","com":"ERRADA. a primeira constituição a tratar de previdência social em seu texto foi a do México de 1917.","region":"teoria","n":3},{"banca":"CESPE – Câmara dos Deputados - 2014","enun":"Acerca da seguridade social, julgue o item que se segue. Entre os principais marcos legislativos referentes à seguridade social incluem-se a edição do Poor Relief Act (lei dos Pobres), em 1601, na Inglaterra, e a criação do seguro-doença, em 1883, na Alemanha. ( ) Certo ( ) Errado","opts":null,"gab":"C","tipo":"CE","com":"CORRETA. O Poor Relief Act foi criado em 1601 na Inglaterra e propunha uma complementação do salário das famílias em situação de miserabilidade, sendo um dos precursores da assistência social. Em 1883, houve a edição da Lei dos Seguros Sociais na Alemanha, a qual foi instituída pelo chanceler Otto Von Bismarck e é considerada o marco da previdência social, tendo instituído uma seguro- doença.","region":"teoria","n":4},{"banca":"CESPE - Analista de Administração Pública - TC-DF - Serviços Técnicos e Administrativos - Serviços Técnicos e Administrativos – 2014","enun":". Com relação à origem, à evolução legislativa, aos princípios constitucionais e à organização da seguridade social no Brasil, julgue o item. O plano de benefícios dos órfãos e viúvas dos oficiais da Marinha consubstancia exemplo histórico da proteção social brasileira. ( ) CERTO ( ) ERRADO","opts":null,"gab":"C","tipo":"CE","com":"De fato, o plano de benefícios dos órfãos e viúvas dos oficiais da Marinha, criado no século XVIII, mais especificamente em 1795, é considerado por diversos doutrinadores como a mais antiga experiência previdenciária brasileira, sendo um claro exemplo histórico da proteção social no Brasil.","region":"teoria","n":5},{"banca":"CESPE - Procurador - Banco Central do Brasil - 2013","enun":"(Adaptada). Considerando a evolução histórico-legislativa e os princípios da seguridade social no Brasil, julgue a assertiva a seguir: Desde 1919, já havia legislação sobre acidente de trabalho no Brasil, entretanto, somente com a publicação da Lei Eloy Chaves, em 1946, foram implementadas as primeiras experiências previdenciárias, tendo a referida lei criado caixas de aposentadorias e pensões para os empregados das empresas ferroviárias e aeroferroviárias brasileiras. ( ) CERTO ( ) ERRADO","opts":null,"gab":"E","tipo":"CE","com":"Aqui há uma tentativa de o examinador induzir o candidato mais apressado ao erro. De fato, desde 1919, já havia legislação sobre acidente de trabalho no Brasil. Ademais, a doutrina majoritária atribui à Lei Eloy Chaves, Decreto-Lei nº 4.682 como o primeiro marco da previdência social no Brasil. Contudo, o referido decreto é de 1923, e não 1946, conforme afirma o examinador. Além disso, não eram empresas aeroferroviárias e sim ferroviárias somente.","region":"teoria","n":6},{"banca":"CESPE - Analista Judiciário – STJ – Judiciária – 2018","enun":". Tendo como referência a doutrina e a jurisprudência a respeito da organização e dos princípios do sistema de seguridade social brasileiro, julgue o item a seguir. O período de implantação da seguridade social foi marcado, entre outros, pelo advento da Lei Eloy Chaves, que instituiu as caixas de aposentadorias e pensões exclusivamente para ferroviários. ( ) CERTO ( ) ERRADO","opts":null,"gab":"C","tipo":"CE","com":"De fato, a doutrina majoritária atribui à Lei Eloy Chaves (Decreto-Lei n. 4682 de 1923) como o primeiro marco da previdência social no Brasil, por ter criado as Caixas de Aposentadoria e Pensões (CAP) para os ferroviários. Posteriormente, esses Caixas foram estendidos a outras categorias de trabalhadores. Assertiva correta","region":"teoria","n":7},{"banca":"CESPE - Técnico do Seguro Social – INSS – 2016","enun":". No que se refere à seguridade social no Brasil, julgue o item seguinte. A Lei Eloy Chaves, que criou em cada uma das empresas de estradas de ferro existentes no país uma caixa de aposentadoria e pensões para os respectivos empregados, foi o primeiro ato normativo a tratar de seguridade social no Brasil. ( ) CERTO ( ) ERRADO","opts":null,"gab":"E","tipo":"CE","com":"A assertiva está incorreta, pois a Lei Eloy Chaves, apesar de ser considerado o marco inicial da Previdência Social no Brasil, não é o primeiro ato normativo a tratar de Seguridade Social em nosso país. Antes dela, tivemos disposições normativas apresentadas na Constituição de 1891. Cumpre observar ainda que a Seguridade Social, como conjunto de ações, só passou a ser tratada, sob esta forma de organização, depois da Constituição de 1988. Ademais, antes da Lei Eloy Chaves, já havia sido publicado o Decreto Legislativo nº 3.724/1919, que tratava de seguro de acidente do trabalho – SAT. Além disso, já estavam em vigor algumas leis concedendo aposentadorias para determinadas categorias de trabalhadores, como, por exemplo, professores, servidores públicos, empregados dos Correios, etc. No entanto, apesar destas normas legais específicas terem sido implementadas antes da Lei Eloy Chaves, apenas com a lei Eloy Chaves houve, de fato, a criação de um sistema organizado e estruturado de proteção social","region":"teoria","n":8},{"banca":"CESPE - Procurador do Estado do Amazonas – 2016","enun":". A respeito do surgimento e da evolução da seguridade social, julgue o item a seguir. No Brasil, iniciou-se o regime próprio de previdência dos servidores públicos com o advento da Lei Eloy Chaves, em 1923, que determinou a criação das caixas de aposentadorias e pensões para os ferroviários. ( ) CERTO ( ) ERRADO","opts":null,"gab":"E","tipo":"CE","com":"A assertiva está incorreta, pois a previdência dos servidores públicos nascera antes da Lei Eloy Chaves, em 1835 com a criação do MONGERAL (Montepio Geral dos Servidores do Estado). No que tange a Lei Eloy Chaves, a doutrina majoritária atribui à esta Lei (Decreto-Lei nº 4.682 de 1923) como o primeiro marco da previdência social no Brasil, por ter criado os Caixas de Aposentadoria e Pensão (CAP) para os trabalhadores ferroviários.","region":"teoria","n":9},{"banca":"CESPE - Analista do Executivo – ES – Direito – 2013","enun":"(Adaptada). Acerca do conceito, da origem e da evolução legislativa da seguridade social brasileira, julgue a assertiva a seguir: Apesar de não ser a primeira norma a tratar de seguridade social, a Lei Eloy Chaves (Decreto Legislativo nº 4.682/1923) é considerada pela doutrina majoritária o marco inicial da previdência social brasileira. ( ) CERTO ( ) ERRADO","opts":null,"gab":"C","tipo":"CE","com":"Correto. Apesar de não ser unânime entre todos os especialistas, a Lei Eloy Chaves (Decreto-Lei n. 4682 de 1923) é considerada, pela doutrina majoritária, o marco inicial da previdência social no Brasil. Esta lei criou as Caixas de Aposentadorias e Pensões para empregados de empresas ferroviárias, iniciando a consolidação da base do sistema previdenciário no país, a qual, posteriormente, foi seguida por outras categorias.","region":"teoria","n":10},{"banca":"CESPE - Analista Judiciário - TRT 8ª Região - 2013","enun":"(Adaptada). Acerca da evolução histórica do direito previdenciário brasileiro, julgue a assertiva a seguir: O Decreto Legislativo n.º 4.682/1923, também conhecido como Lei Eloy Chaves, é considerado um marco do direito previdenciário brasileiro, devido ao fato de, por meio dele, ter sido criado o Ministério da Previdência e Assistência Social. ( ) CERTO ( ) ERRADO","opts":null,"gab":"E","tipo":"CE","com":"De fato, a doutrina majoritária atribui à Lei Eloy Chaves, Decreto-Lei n. 4682 de 1923 como o marco inicial da previdência social no Brasil, por ter criado as Caixas de Aposentadoria e Pensões (CAP) para cada uma das empresas ferroviárias do Brasil. Contudo, o primeiro ministério voltado especificamente à Previdência nasceu somente em 1960, o então chamado Ministério do Trabalho e Previdência Social.","region":"teoria","n":11},{"banca":"INÉDITA","enun":". No tocante a origem e a evolução da seguridade social brasileira, julgue a assertiva a seguir: A Lei Eloy Chaves (Decreto Legislativo nº 4.682/1923) é considerada um marco, por ser o primeiro movimento histórico no país no que tange à Seguridade Social. ( ) CERTO ( ) ERRADO","opts":null,"gab":"E","tipo":"CE","com":"De fato, a doutrina majoritária atribui à Lei Eloy Chaves, Decreto-Lei nº 4.682 de 1923, como o primeiro marco da previdência social no Brasil, por ter criado os Caixas de Aposentadoria e Pensão (CAP) para os ferroviários. Contudo, bem antes disso, pode-se observar movimentos que historicamente contribuíram para o nascimento e a evolução da seguridade social no país. É o caso, por exemplo, das Santas Casas de Misericórdia, criadas a partir de 1543, as quais já visavam à entrega de prestações assistenciais, bem como os Plano de Benefícios dos Órfãos e Viúvas dos Oficiais da Marinha, os Montepios para algumas categorias, etc. Assertiva incorreta.","region":"teoria","n":12},{"banca":"CESPE - Analista Judiciário – STJ – 2018","enun":". Com relação à organização e aos princípios do sistema de seguridade social brasileiro, julgue o item a seguir. Após a edição da Lei Eloy Chaves, diversas categorias de trabalhadores buscaram a proteção social que aquela legislação garantiu, o que provocou a expansão dos direitos protetivos pelo país. ( ) CERTO ( ) ERRADO","opts":null,"gab":"C","tipo":"CE","com":"De fato, a doutrina majoritária atribui à Lei Eloy Chaves, Decreto-Lei n. 4682 de 1923, como o primeiro marco da previdência social no Brasil, por ter criado as Caixas de Aposentadoria e Pensões (CAP) para os ferroviários, sendo que, posteriormente, diversas categorias de trabalhadores buscaram tal proteção social. Destra forma, essas Caixas foram estendidas a outras categorias de trabalhadores, tais como: • 1926: Empregados portuários e marítimos; • 1928: Empregados de empresas de Serviços Telegráficos e Radiotelegráficos; • 1930: Empregados de empresas de Serviços de Força, Luz e Bondes. Portanto, assertiva correta.","region":"teoria","n":13},{"banca":"ESAF - Analista Técnico de Políticas Sociais – MPOG – 2012","enun":"(Adaptada). Em relação à trajetória da previdência social no Brasil, julgue o item a seguir: As Caixas de Aposentadorias e Pensões (CAP´s) eram organizações de natureza privada financiadas pelas contribuições das empresas e dos empregados. ( ) CERTO ( ) ERRADO","opts":null,"gab":"C","tipo":"CE","com":"A doutrina atribui à Lei Eloy Chaves (Decreto-Lei nº 4.682 de 1923), como o primeiro marco da previdência social brasileiro. À época, foi criada a Caixa de Aposentadoria e Pensão – CAP em favor dos empregados de empresas do setor ferroviário. Contudo, as respectivas CAP´s eram organizadas pelas empresas (inicialmente somente as empresas do setor ferroviário) e cada uma delas possuía sua própria caixa. As CAP´s tinham natureza privada e eram financiadas pelas contribuições das empresas e dos empregados. Assertiva correta.","region":"teoria","n":14},{"banca":"CESPE – Defensor Público Federal – Defensoria Pública da União – 2010","enun":". Em relação aos institutos de direito previdenciário, julgue o item que se segue. A Lei Eloy Chaves (Decreto Legislativo n.º 4.682/1923), considerada o marco da Previdência Social no Brasil, criou as caixas de aposentadoria e pensões das empresas de estradas de ferro, sendo esse sistema mantido e administrado pelo Estado. ( ) CERTO ( ) ERRADO","opts":null,"gab":"E","tipo":"CE","com":"Esta questão pode pegar o candidato que está com um pouco de pressa na hora de fazer a prova. A Lei Eloy Chaves realmente foi um marco na história da Previdência Social do Brasil e ao Estado cabia a regulamentação. Contudo, tanto a manutenção quanto a administração cabiam aos empregadores, que no caso eram as empresas ferroviárias, possuindo, portanto, natureza privada. Portanto assertiva errada.","region":"teoria","n":15},{"banca":"QUESTÃO INÉDITA","enun":". Com relação à evolução do sistema de Seguridade Social brasileiro, julgue o item a seguir: Somente após a década de 40 diversas categorias de trabalhadores conquistaram a proteção social que as empresas do setor ferroviário obtiveram quando da edição da Lei Eloy Chaves. ( ) CERTO ( ) ERRADO","opts":null,"gab":"E","tipo":"CE","com":"A doutrina majoritária atribui à Lei Eloy Chaves, Decreto-Lei nº 4.682 de 1923, como o primeiro marco da previdência social no Brasil, por ter criado os Caixas de Aposentadoria e Pensão (CAP) para os ferroviários. Contudo, já na década de 30, do século passado, essas caixas foram estendidas a outras categorias de trabalhadores. Assertiva incorreta.","region":"teoria","n":16},{"banca":"CESPE - Defensor – Defensoria Pública do Estado do Espírito Santo - 2012","enun":". No tocante à Seguridade Social, julgue o item subsequente. A publicação, em 1954, do Decreto n.º 35.448, que aprovou o Regulamento Geral dos Institutos de Aposentadorias e Pensões, é considerada, pela doutrina majoritária, o marco inicial da previdência social brasileira. ( ) CERTO ( ) ERRADO","opts":null,"gab":"E","tipo":"CE","com":"Apesar de não ser unânime entre todos os especialistas, a Lei Eloy Chaves (Decreto-Lei nº 4.682 de 1923) é considerada o marco inicial da previdência social no Brasil. Esta lei criou as Caixas de Aposentadorias e Pensões para empregados de empresas ferroviárias, iniciando a consolidação da base do sistema previdenciário no país, a qual, posteriormente, foi seguida por outras categorias. Portanto, assertiva incorreta.","region":"teoria","n":17},{"banca":"ESAF - Analista Técnico de Políticas Sociais – MPOG – 2012","enun":"(Adaptada). Em relação à trajetória da previdência social no Brasil, julgue o item a seguir: Na década de 1930, as CAP´s foram transformadas e substituídas progressivamente pelos Institutos de Aposentadoria e Pensões (IAP´s), organizados por ramos de atividade e de natureza estatal. ( ) CERTO ( ) ERRADO","opts":null,"gab":"C","tipo":"CE","com":"Diante das necessidades e dos problemas apresentados pelas CAP´s, estas foram unificadas por categoria profissional, dando origem aos Institutos de Aposentadorias e Pensões – IAP´s, na década de 30 do século passado. Os IAP´s eram autarquias de abrangência nacional, centralizadas no governo federal e subordinadas ao recém-criado Ministério do Trabalho. Os Institutos de Aposentadorias e Pensões – IAP´s surgiram em 1933, inicialmente com a criação do IAPM (Instituto de Aposentadoria e Pensões dos Marítimos). Enquanto as CAP´s eram organizadas por empresas, os IAP´s eram organizados por CATEGORIAS PROFISSIONAIS, abrangendo classe de trabalhadores no âmbito nacional. Assertiva correta.","region":"teoria","n":18},{"banca":"CESPE - Procurador do Ministério Público de Contas - TCE/ BA – 2010","enun":". Julgue o próximo item, a respeito da seguridade social. Na evolução da previdência social brasileira, o modelo dos institutos de aposentadoria e pensão, que abrangiam determinadas categorias profissionais, foi posteriormente substituído pelo modelo das caixas de aposentadoria e pensão, que eram criadas na estrutura de cada empresa. ( ) CERTO ( ) ERRADO","opts":null,"gab":"E","tipo":"CE","com":"Em realidade é exatamente o contrário. A origem da previdência social brasileira foi com as Caixas de Aposentadoria e Pensão – CAP, que eram criadas na estrutura de cada empresa. Depois os modelos de CAP´s foram substituídos pelos Institutos de Aposentadoria e Pensão – IAP. Assertiva incorreta.","region":"teoria","n":19},{"banca":"CESPE – Defensor Público Federal – Defensoria Pública da União - 2004","enun":". Em relação à origem, organização e evolução legislativa da seguridade social no Brasil, julgue o item a seguir. O falecimento recente de Leonel Brizola recordou uma das correntes ideológicas mais importantes na história brasileira: o trabalhismo, resultante da política adotada pelo governo Vargas a partir de 1930 e cujo ideário constituiu um conjunto de políticas no fortalecimento do sindicalismo, na criação da justiça do trabalho e na política previdenciária caracterizada pela organização de caixas de aposentadoria e pensão segmentadas por empresas e de natureza privada. ( ) CERTO ( ) ERRADO","opts":null,"gab":"E","tipo":"CE","com":"Quase certa! O conceito apresentado pelo examinador não está equivocado. Contudo, na realidade, na década de 30 as Caixas de Aposentadoria e Pensão foram substituídas pelos Institutos de Aposentadoria. Ou seja, em 1930, as CAP’s já existiam, o que torna a questão errada.","region":"teoria","n":20},{"banca":"CESPE - Analista Legislativo - CAM DEP – 2014","enun":". Com relação à evolução histórica e à organização institucional da previdência social, julgue o item a seguir. Embora a Lei Eloy Chaves, de 1923, seja considerada, na doutrina majoritária, o marco da previdência social no Brasil, apenas em 1960, com a aprovação da Lei Orgânica da Previdência Social, houve a uniformização do regramento de concessão dos benefícios pelos diversos institutos de aposentadoria e pensão então existentes. ( ) CERTO ( ) ERRADO","opts":null,"gab":"C","tipo":"CE","com":"Assertiva correta. A doutrina majoritária considera a Lei Eloy Chaves (Decreto-Lei n. 4682 de 1923), como o primeiro marco da previdência social no Brasil. A Lei Eloy Chaves criou a Caixa de Aposentadoria e Pensões – CAP para os empregados ferroviários, mediante contribuição dos empregados, empregadores e Estado. Em 1926 essas CAP´s foram estendida aos portuários e marítimos e, mais adiante, para outras categorias. Contudo, conforme afirma a banca examinadora, somente em 1960, com a Lei Orgânica da Previdência Social (LOPS), houve a uniformização do regramento de concessão dos benefícios pelos diversos institutos de aposentadorias e pensões então existentes. A LOPS já estava preparando o ordenamento jurídico brasileiro para a posterior unificação dos IAP´s em uma única autarquia federal, o que ocorreu em 1967 com a criação do INPS.","region":"teoria","n":21},{"banca":"CESPE - Analista Judiciário - TRT 8ª Região - 2013","enun":"(Adaptada). Acerca da evolução histórica do direito previdenciário brasileiro, julgue a assertiva a seguir: Ocorreram inúmeras modificações na organização administrativa previdenciária brasileira ao longo de seu desenvolvimento, tais como a transformação do Fundo de Assistência e Previdência do Trabalhador Rural em INPS e, em seguida, mediante a CF, a transformação deste em INSS. ( ) CERTO ( ) ERRADO","opts":null,"gab":"E","tipo":"CE","com":"A transformação citada pelo examinador nunca ocorreu. O FUNRURAL – Fundo de Assistência e Previdência do Trabalhador Rural foi criado em 1963, pela Lei 4.214 e foi extinto em 1991, pelo art. 138 da Lei 8.213/91. O INPS – Instituto Nacional de Previdência Social foi criado em 1966, por intermédio do Decreto Lei nº 72/66, que unificou os Institutos de Aposentadoria e Pensão existentes à época em um único órgão. Contudo cumpre observar que, mesmo com a criação do INPS, os trabalhadores rurais continuaram no próprio FUNRURAL. Assertiva incorreta.","region":"teoria","n":22},{"banca":"CESPE - Defensor Público Federal – 2017","enun":". Acerca da seguridade social no Brasil, de sua evolução histórica e de seus princípios, julgue o item a seguir. A Lei Eloy Chaves, de 1923, foi um marco na legislação previdenciária no Brasil, pois unificou os diversos institutos de aposentadoria e criou o INPS. ( ) CERTO ( ) ERRADO","opts":null,"gab":"E","tipo":"CE","com":"A assertiva está incorreta, pois apesar de a Lei Eloy Chaves realmente ter sido um marco na legislação previdenciária, não foi essa Lei que unificou institutos de aposentadoria, pois estes sequer existiam à época. No caso, O INPS foi criado pelo Decreto-Lei nº 72/66, publicado em 21/11/1966, mas tendo entrado em vigor apenas em 01/01/1967. Com a criação do Instituto Nacional da Previdência Social - INPS, todos os Institutos de Aposentadorias e Pensões – IAP´s foram unificados numa única autarquia federal, qual seja, o INPS. Muito tempo depois da edição da lei Eloy Chaves.","region":"teoria","n":23},{"banca":"CESPE - Analista Judiciário - TRT 8ª Região - 2013","enun":"(Adaptada). Acerca da evolução histórica do direito previdenciário brasileiro, julgue a assertiva a seguir: O ordenamento jurídico brasileiro coexistiu com inúmeros regimes previdenciários específicos até a edição do Decreto-lei n.º 72/1966, mediante o qual foram unificados os institutos de aposentadorias e centralizada a organização previdenciária no INPS. ( ) CERTO ( ) ERRADO","opts":null,"gab":"C","tipo":"CE","com":"De fato, o INPS – Instituto Nacional de Previdência Social foi criado em 1966, por intermédio do Decreto Lei nº 72/66, unificando-se os Institutos de Aposentadoria e Pensão existentes à época em uma única autarquia federal. Assertiva correta.","region":"teoria","n":24},{"banca":"ESAF - Analista Técnico de Políticas Sociais – MPOG – 2012","enun":"(Adaptada). Acerca do Sistema Nacional de Assistência e Previdência Social (SINPAS), que agrupou o Instituto Nacional de Previdência Social (INPS) e o Instituto Nacional de Administração da Previdência Social (IAPAS), julgue o item a seguir: A Empresa de Processamento de Dados da Previdência Social (Dataprev) passou a integrar o SINPAS, na condição de órgão autônomo da estrutura do Ministério da Previdência e Assistência Social (MPAS). ( ) CERTO ( ) ERRADO","opts":null,"gab":"E","tipo":"CE","com":"A DATAPREV, de fato integrou o SINPAS. Contudo, não era um órgão autônomo vinculado ao MPAS. Tratava-se de uma das entidades integrantes do SINPAS, responsável pelo processamento de dados da Previdência Social. É a única entidade que fazia parte do SINPAS e que existe até hoje. Assertiva incorreta.","region":"teoria","n":25},{"banca":"ESAF - Analista Técnico de Políticas Sociais – MPOG – 2012","enun":"(Adaptada). Acerca do Sistema Nacional de Assistência e Previdência Social (SINPAS), que agrupou o Instituto Nacional de Previdência Social (INPS) e o Instituto Nacional de Administração da Previdência Social (IAPAS), julgue o item a seguir: Entre outras competências, cabia ao Instituto Nacional de Previdência Social (INPS), como entidade do SINPAS, a concessão e manutenção de benefícios e outras prestações em dinheiro, inclusive aquelas que estavam a cargo do Fundo de Assistência ao Trabalhador Rural (Funrural). ( ) CERTO ( ) ERRADO","opts":null,"gab":"C","tipo":"CE","com":"Assertiva correta, de fato era o que ocorria. Quando da vigência do SINPAS, era de competência do INPS gerir tais questões administrativas.","region":"teoria","n":26},{"banca":"ESAF - Analista Técnico de Políticas Sociais – MPOG – 2012","enun":"(Adaptada). Acerca do Sistema Nacional de Assistência e Previdência Social (SINPAS), que agrupou o Instituto Nacional de Previdência Social (INPS) e o Instituto Nacional de Administração da Previdência Social (IAPAS), julgue o item a seguir: As entidades integrantes do SINPAS preservaram seus bens móveis e imóveis, não sendo permitido ao MPAS a promover a transferência, de uma para outra entidade do SINPAS, de bens imóveis e de direitos a eles relativos. ( ) CERTO ( ) ERRADO","opts":null,"gab":"E","tipo":"CE","com":"Assertiva incorreta. Era permitida a transferência, inclusive prevista na legislação. Mais especificamente na lei 6. 439/77, vigente à época, que em seu artigo 15, assim dispunha: Art 15 - Fica o Poder Executivo autorizado a promover a transferência, de uma para outra entidade do SINPAS, de bens imóveis e de direitos a eles relativos.","region":"teoria","n":27},{"banca":"CESPE - Procurador - Banco Central do Brasil - 2013","enun":"(Adaptada). Considerando a evolução histórico-legislativa e os princípios da seguridade social no Brasil, julgue a assertiva a seguir: O INSS, importante órgão na estrutura da seguridade social brasileira, foi instituído no Brasil na década de noventa do século XX, como autarquia federal, mediante fusão do Instituto de Administração da Previdência e Assistência Social com o Instituto Nacional de Previdência Social. ( ) CERTO ( ) ERRADO","opts":null,"gab":"C","tipo":"CE","com":"Assertiva correta. Com o advento da CF/88 inicia-se um novo formato de organização do sistema de Seguridade Social, dividida entre: saúde, assistência e previdência social; mas somente com o decreto 99.350/90 (portanto, na década de 90, conforme afirma o examinador), cria-se o INSTITUTO NACIONAL DO SEGURO SOCIAL - INSS que unifica os antigos INPS (Instituto Nacional de Previdência Social, responsável por conceder benefícios previdenciários) com o IAPAS (Instituto Administração Financeira da Previdência e Assistência Social, responsável pela arrecadação e fiscalização das contribuições previdenciárias).","region":"teoria","n":28},{"banca":"FCC - Analista Judiciário - TRT 6ª Região - 2012","enun":"(Adaptada). A estrutura da previdência social brasileira, nos dias atuais, está composta com diferentes regimes. São eles: Regime Geral, administrado por IAP, os Regimes dos servidores públicos das três esferas de governo (União, estados e municípios) e previdência privada. ( ) CERTO ( ) ERRADO","opts":null,"gab":"E","tipo":"CE","com":"A assertiva está incorreta. O Regime Geral não é, atualmente, administrado por IAP’s (Institutos de Aposentadorias e Pensões), já extintos. Com a criação do Instituto Nacional da Previdência Social - INPS, todos os Institutos de Aposentadorias e Pensões – IAP´s foram unificados numa única autarquia federal, qual seja, o INPS. Hoje, o Regime Geral é de responsabilidade do INSS para a concessão de benefícios e da Receita Federal do Brasil - RFB para o custeio previdenciário. Portanto, assertiva incorreta.","region":"teoria","n":29},{"banca":"FCC - Analista Judiciário - TRT 6ª Região - 2012","enun":"(Adaptada). A estrutura da previdência social brasileira, nos dias atuais, está composta com diferentes regimes. São eles: Regime Geral, administrado pelo Instituto Nacional do Seguro Social − INSS, os Regimes Próprios dos Servidores Públicos e Militares e a Previdência Complementar. ( ) CERTO ( ) ERRADO","opts":null,"gab":"C","tipo":"CE","com":"De fato, são três os regimes da previdência social no Brasil: Regime Geral de Previdência Social – RGPS, Regime Próprio de Previdência Social - RPPS e o Regime de Previdência Complementar. Portanto a assertiva está correta. Obs: O INSS cuida da parte de concessão e manutenção de benefícios previdenciários. Contudo, o custeio é de responsabilidade da RFB.","region":"teoria","n":30},{"banca":"CESPE - Técnico do Seguro Social – INSS - 2008","enun":". Em relação ao Instituto Nacional do Seguro Social, a seu histórico e estrutura, julgue o item a seguir. O Instituto Nacional do Seguro Social, autarquia federal atualmente vinculada ao Ministério da Previdência Social, surgiu, em 1990, como resultado da fusão do Instituto Nacional de Assistência Médica da Previdência Social (INAMPS) e o Instituto de Administração Financeira da Previdência e Assistência Social (IAPAS). ( ) CERTO ( ) ERRADO","opts":null,"gab":"E","tipo":"CE","com":"A assertiva está incorreta, pois o examinador troca o Instituto Nacional de Previdência Social - INPS pelo INAMPS. Em realidade a fusão que deu origem ao INSS foi do IAPAS com o INPS (e não INAMPS).","region":"teoria","n":31},{"banca":"CESPE - Juiz Federal - TRF 5ª Região – 2007","enun":". Acerca da legislação aplicável à seguridade social e sua gestão, julgue o seguinte item. O Instituto Nacional do Seguro Social (INSS) é a autarquia previdenciária cuja principal atribuição é a administração do regime geral de previdência social. ( ) CERTO ( ) ERRADO","opts":null,"gab":"E","tipo":"CE","com":"Assertiva incorreta. O INSS não tem como principal atribuição a administração do RGPS. A principal atribuição do INSS é a concessão e manutenção dos benefícios previdenciários. Essa autarquia federal (INSS) não mais atua na arrecadação e cobrança das contribuições previdenciárias, uma vez que tal atribuição foi transferida para a Secretaria da Receita Previdenciária e, posteriormente, para a Receita Federal do Brasil. Assim sendo, não cabe ao INSS administrar o RGPS, mas apenas operacionalizar o reconhecimento dos direitos dos segurados do Regime Geral de Previdência Social – RGPS, nos termos da legislação previdenciária. Outrossim, a parte de custeio do RGPS está sob responsabilidade da RFB.","region":"teoria","n":32},{"banca":"CESPE - Oficial Técnico de Inteligência - ABIN – 2018","enun":". Em relação à organização, à origem e ao custeio do sistema de seguridade social, julgue o item a seguir. A seguridade social nos moldes como é atualmente conhecida é fruto da evolução legislativa quanto à garantia dos direitos sociais no Brasil e foi introduzida no ordenamento jurídico pátrio pela Constituição Federal de 1988. ( ) CERTO ( ) ERRADO","opts":null,"gab":"C","tipo":"CE","com":"Historicamente, a Seguridade social teve diversas iniciativas ao longo do tempo, tais como, em 1543, com a criação das Santas Casas de Misericórdia, a qual visava à entrega de prestações assistenciais. Mesmo já existindo serviços públicos relacionados à saúde, previdência e assistência social, eles existiam de forma isolada e sem integrar a Seguridade Social. A sistematização desses serviços e sua integração como Seguridade Social, realmente só veio com o surgimento da Constituição Federal em 1988, que foi a primeira Constituição a utilizar a expressão “Seguridade Social”, englobando Saúde, Assistência e Previdência.","region":"teoria","n":33},{"banca":"CESPE - Auditor de Controle Externo – TC/ DF – 2014","enun":". Com relação à origem e à evolução legislativa da Seguridade Social no Brasil, julgue o item abaixo. O seguro-desemprego veio previsto pela primeira vez na CF/1988. ( ) CERTO ( ) ERRADO","opts":null,"gab":"E","tipo":"CE","com":"Assertiva incorreta. A primeira aparição do Seguro Desemprego é na Constituição de 1967. Art 158 - A Constituição assegura aos trabalhadores os seguintes direitos, além de outros que, nos termos da lei, visem à melhoria, de sua condição social: [...] XVI - previdência social, mediante contribuição da União, do empregador e do empregado, para seguro- desemprego, proteção da maternidade e, nos casos de doença, velhice, invalidez e morte; (Destaque Nosso).","region":"teoria","n":34},{"banca":"CESPE - Analista Legislativo - CAM DEP - Área XXI - Consultor Legislativo – 2014","enun":". Com relação à evolução histórica e à organização institucional da previdência social, julgue o item a seguir. A Constituição Federal de 1934 inovou a ordem constitucional brasileira no que se refere à fonte do custeio previdenciário, que passou a ser tríplice, provinda de contribuições do Estado, do trabalhador e do empregador. ( ) CERTO ( ) ERRADO","opts":null,"gab":"C","tipo":"CE","com":"Assertiva correta, pois a Constituição Federal de 1934 foi a primeira a instituir, em texto constitucional, o custeio tripartite, com contribuições da União, empregador e empregado, em favor da velhice, invalidez, maternidade, acidentes de trabalho e morte. Esta Constituição, por fatores como este, dentre outros, foi considerada evolucionista, no que tange aspectos do tema Seguridade Social.","region":"teoria","n":35},{"banca":"CESPE - Analista do Executivo – ES – Direito – 2013","enun":"(Adaptada). Acerca do conceito, da origem e da evolução legislativa da seguridade social brasileira, julgue a assertiva a seguir: A Constituição de 1934 foi a primeira a dispor sobre aposentadoria, instituindo-a para os funcionários públicos em caso de invalidez no serviço. ( ) CERTO ( ) ERRADO","opts":null,"gab":"E","tipo":"CE","com":"Diferentemente do que coloca o examinador, a primeira Constituição a dispor sobre aposentadoria é a Constituição de 1891 (Constituição Republicana), sendo a primeira a trazer a expressão “aposentadoria”, ao instituir a aposentadoria para os funcionários públicos, em caso de invalidez. Assertiva incorreta.","region":"teoria","n":36},{"banca":"CESPE - Analista do Executivo – ES – Direito – 2013","enun":"(Adaptada). Acerca do conceito, da origem e da evolução legislativa da seguridade social brasileira, julgue a assertiva a seguir: A Constituição de 1937 foi a primeira a prever a forma tripartite de custeio da previdência, realizada com contribuições do Estado, do empregado e do empregador. ( ) CERTO ( ) ERRADO","opts":null,"gab":"E","tipo":"CE","com":"Assertiva incorreta. A Constituição de 1934 ( e não a de 1937) foi a primeira a instituir, em texto constitucional, o custeio tripartite, com contribuições da União, empregador e empregado, em favor da velhice, invalidez, maternidade, acidentes de trabalho e morte. A Constituição Federal de1937, contudo, foi a primeira Constituição a utilizar a expressão “seguro social”.","region":"teoria","n":37},{"banca":"CESPE - Analista Judiciário - TRT 8ª Região - 2013","enun":"(Adaptada). Acerca da evolução histórica do direito previdenciário brasileiro, julgue a assertiva a seguir: Ao longo de décadas, o Estado brasileiro deixou de conceder diversos direitos sociais a seus cidadãos, tendo sido instituídos benefícios previdenciários ao trabalhador apenas com a promulgação da CF. ( ) CERTO ( ) ERRADO","opts":null,"gab":"E","tipo":"CE","com":"Assertiva incorreta. Apenas para trazermos alguns exemplos, em 1795 foi criado o Plano de Benefícios dos Órfãos e Viúvas dos Oficiais da Marinha. 40 anos depois, em 1835, surge o MONGERAL – Montepio Geral dos Servidores do Estado, um plano previdenciário de abrangência ampla. Enfim, não procede a assertiva proposta pelo examinador. Ademais, antes da promulgação da Constituição Federal, já havia sido publicado o Decreto Legislativo nº 3.724/1919, que tratava de seguro de acidente do trabalho – SAT. Além disso, já estavam em vigor algumas leis concedendo aposentadorias para determinadas categorias de trabalhadores, como, por exemplo, professores, servidores públicos, empregados dos Correios, etc.","region":"teoria","n":38},{"banca":"CESPE - Analista Judiciário - TRT 8ª Região - 2013","enun":"(Adaptada). Acerca da evolução histórica do direito previdenciário brasileiro, julgue a assertiva a seguir: A Constituição Federal de 1934 é considerada retrocedente quanto à proteção ao trabalhador, haja vista terem sido dela excluídos os benefícios de proteção à maternidade e os provenientes de acidente de trabalho. ( ) CERTO ( ) ERRADO","opts":null,"gab":"E","tipo":"CE","com":"Assertiva incorreta, pois a Constituição de 1934 é reconhecida pelo seu aspecto evolutivo no que tange a aspectos previdenciários. Foi a primeira Constituição a instituir, em texto constitucional, o custeio tripartite, com contribuições da União empregador e empregado, em favor da velhice, invalidez, maternidade, acidentes de trabalho e morte. Vejamos a transcrição de trechos do seu artigo 121, para que observemos como tal CF evolui no tema em questão: Art 121 - A lei promoverá o amparo da produção e estabelecerá as condições do trabalho, na cidade e nos campos, tendo em vista a proteção social do trabalhador e os interesses econômicos do País. § 1º - A legislação do trabalho observará os seguintes preceitos, além de outros que colimem melhorar as condições do trabalhador: [...] h) assistência médica e sanitária ao trabalhador e à gestante, assegurando a esta descanso antes e depois do parto, sem prejuízo do salário e do emprego, e instituição de previdência, mediante contribuição igual da União, do empregador e do empregado, a favor da velhice, da invalidez, da maternidade e nos casos de acidentes de trabalho ou de morte;","region":"teoria","n":39},{"banca":"ESAF - Analista Técnico de Políticas Sociais – MPOG – 2012","enun":"(Adaptada). Com a Constituição Federal de 1988, as políticas de previdência, saúde e assistência social foram reorganizadas e reestruturadas com novos princípios e diretrizes e passaram a compor o sistema de seguridade social brasileiro. Sobre essa temática, julgue o item a seguir: A seguridade social pode garantir mais, ou menos, acesso a direitos, quanto mais se desvencilhar da lógica do seguro e quanto mais assumir a lógica social. ( ) CERTO ( ) ERRADO","opts":null,"gab":"C","tipo":"CE","com":"Correto. Na lógica do seguro a proteção seria realizada pela própria iniciativa privada e, portanto, para a minoria da população. Já na lógica social, mais moderna, busca-se abranger cada vez mais riscos sociais e pessoas cobertas pelo sistema.","region":"teoria","n":40},{"banca":"ESAF - Analista Técnico de Políticas Sociais – MPOG – 2012","enun":"(Adaptada). Com a Constituição Federal de 1988, as políticas de previdência, saúde e assistência social foram reorganizadas e reestruturadas com novos princípios e diretrizes e passaram a compor o sistema de seguridade social brasileiro. Sobre essa temática, julgue o item a seguir: A seguridade social brasileira terminou por conjugar direitos derivados do trabalho, com direitos de caráter universal e direitos seletivos. ( ) CERTO ( ) ERRADO","opts":null,"gab":"C","tipo":"CE","com":"Correto. Tanto isso é verdade que a seguridade social, abarca direitos relacionados à saúde (de caráter universal); assistência social (de caráter seletivo, uma vez que este direito é ofertado somente a quem dele precisar); e direitos derivados do trabalho (previdência social propriamente dita).","region":"teoria","n":41},{"banca":"ESAF - Analista Técnico de Políticas Sociais – MPOG – 2012","enun":"(Adaptada). Com a Constituição Federal de 1988, as políticas de previdência, saúde e assistência social foram reorganizadas e reestruturadas com novos princípios e diretrizes e passaram a compor o sistema de seguridade social brasileiro. Sobre essa temática, julgue o item a seguir: No Brasil implantou-se um padrão de seguridade social homogêneo, com forte tendência a lógica da assistência e da universalidade, inclusive na previdência social. ( ) CERTO ( ) ERRADO","opts":null,"gab":"E","tipo":"CE","com":"A seguridade social abrange áreas diferentes, quais sejam: previdência social, saúde e assistência social. Claramente não se trata de um padrão homogêneo, pois há tratamentos diferenciados. Por exemplo, a assistência social é de caráter seletivo, uma vez que é ofertada somente a quem dela necessitar. Já a previdência social é orientada apenas aos beneficiários (segurados e dependentes), mediante contribuição, fugindo da lógica assistencialista e universal. Portanto, assertiva incorreta.","region":"teoria","n":42},{"banca":"CESPE - Técnico do Seguro Social – 2008","enun":". Acerca da seguridade social no Brasil, de suas características, contribuições e atuação, julgue o item a seguir. A seguridade social brasileira, apesar de ser fortemente influenciada pelo modelo do Estado do bem-estar social, não abrange todas as políticas sociais do Estado brasileiro. ( ) CERTO ( ) ERRADO","opts":null,"gab":"C","tipo":"CE","com":"É isso mesmo. A seguridade social no Brasil é composta de três pilares: Previdência, Saúde e Assistência Social. Abrange muitos benefícios. Contudo, existem políticas sociais que não estão neste “guarda-chuva”. Por exemplo: educação, trabalho, saneamento, meio ambiente, lazer, etc. Apesar de sua importância, tais políticas sociais estão fora da área de atuação da Seguridade Social.","region":"teoria","n":43},{"banca":"CESPE - Técnico do Seguro Social – INSS - 2008","enun":". Em relação ao Instituto Nacional do Seguro Social, a seu histórico e estrutura, julgue o item a seguir.A fusão da Secretaria da Receita Federal com a Secretaria da Receita Previdenciária centralizou em apenas um órgão a arrecadação da maioria dos tributos federais. Contudo, a fiscalização e a arrecadação das contribuições sociais destinadas aos chamados terceiros - SESC, SENAC, SESI, SENAI e outros - permanecem a cargo do INSS. ( ) CERTO ( ) ERRADO","opts":null,"gab":"E","tipo":"CE","com":"Assertiva incorreta, pois com o advento da Lei 11.457/2007 a Receita Federal do Brasil passou a ser responsável pela fiscalização e arrecadação das contribuições sociais, inclusive aquelas em favor de outras entidades e fundos, também conhecidas como contribuições para terceiros. Exemplo: “Sistema S” (SESC, SENAC, SESI, SENAI, etc.), FNDE, INCRA, etc.","region":"teoria","n":44},{"banca":"CESPE – Residência Multiprofissional – HUB – 2017","enun":"Acerca da seguridade social e do trabalho, julgue o item subsequente. É consenso entre os estudiosos da área que, no Brasil, a implementação da seguridade social — isto é, do sistema de proteção social — ocorreu conforme o que está disposto na Constituição Federal de 1988. 1 55 ( ) Certo ( ) Errado","opts":null,"gab":"E","tipo":"CE","com":"A Constituição Federal de 1988 foi a primeira a utilizar o tempo \"Seguridade Social\", o qual engloba saúde, assistência social e previdência social. As constituições anteriores não haviam implantado essas ações conjuntas de proteção social, mas apenas ações pontuais. Além disso, na implementação da Seguridade Social, não havia um regime geral de previdência social, que englobava a maior parte dos trabalhadores. Um exemplo são as Caixas de Aposentadorias e Pensões, criadas em 1923, que incialmente eram disponíveis apenas para os ferroviários e organizadas por empresas. Portanto, a implementação da Seguridade Social no Brasil não ocorreu conforme está disposto na Constituição Federal de 1988.","region":"final","n":45},{"banca":"CESPE – Analista Judiciário – STJ – 2018","enun":"Tendo como referência a doutrina e a jurisprudência a respeito da organização e dos princípios do sistema de seguridade social brasileiro, julgue o item a seguir. O período de implantação da seguridade social foi marcado, entre outros, pelo advento da Lei Eloy Chaves, que instituiu as caixas de aposentadorias e pensões exclusivamente para ferroviários. ( ) Certo ( ) Errado","opts":null,"gab":"C","tipo":"CE","com":"O enunciado está correto, uma vez que a Lei Eloy Chaves instituiu as Caixas de Aposentadorias e Pensões (CAP’s) exclusivamente para os ferroviários. As CAP’s eram organizadas por empresas e tinham natureza privada. Em momento posterior, as CAP’s foram unificadas por categoria profissional, dando origem aos IAP’s. Os IAP’s eram autarquias de abrangência nacional.","region":"final","n":46},{"banca":"CESPE – Analista Judiciário – STJ – 2018","enun":"Com relação à organização e aos princípios do sistema de seguridade social brasileiro, julgue o item a seguir. Após a edição da Lei Eloy Chaves, diversas categorias de trabalhadores buscaram a proteção social que aquela legislação garantiu, o que provocou a expansão dos direitos protetivos pelo país. ( ) Certo ( ) Errado","opts":null,"gab":"C","tipo":"CE","com":"A questão trata corretamente dos fatos históricos. A Lei Eloy Chaves, de 1923, instituiu as Caixas de Aposentadorias e Pensões (CAP’s) exclusivamente para os ferroviários. As CAP’s eram organizadas por empresas e tinham natureza privada. Após a publicação da Lei Eloy Chaves, outras categorias profissionais se interessaram pelos modelos das CAPS e foram em busca da mesma proteção, provocando uma extensão dessa medida protetiva. São exemplos dessa situação a Lei nº 5.109 (1926), que estendeu a incidência da Lei Eloy Chaves aos portuários e marítimos, e a Lei nº 5.485 (1928). Com a multiplicação das CAP’s, houve a unificação destas em Institutos de Aposentadorias e Pensões – IAP´s, organizados por categoria profissional (e não mais por empresa).","region":"final","n":47},{"banca":"Inédita","enun":"Quanto à evolução da Seguridade Social no Brasil, podemos afirmar que as formas mais antigas de proteção social que são relatadas no território nacional são as Santas Casas de Misericórdia, as quais foram instituídas pela primeira norma a estruturar o sistema previdenciário brasileiro. ( ) Certo ( ) Errado","opts":null,"gab":"E","tipo":"CE","com":"A afirmação de que as Santas Casas de Misericórdia são as formas mais antigas de proteção social relatadas no território nacional está correta. No Brasil, a Irmandade da Santa Casa de Misericórdia surgiu ainda no período colonial, instalando-se em Olinda, na Capitania de Pernambuco, em 1539 e em Santos, em 1543. Entretanto, a questão incorre em erro ao afirmar que as Santas Casas de Misericórdia foram instituídas pela primeira lei a tratar sobre Seguridade Social no Brasil, uma vez que a primeira norma a estruturar o sistema previdenciário brasileiro é a Lei Eloy Chaves, que veio em 1923, muito depois da criação das Santas Casas de Misericórdia. A Lei Eloy Chaves instituiu as Caixas de Aposentadorias e Pensões para os ferroviários. GABARITO: ERRADA. 6- (Inédita) O conceito de Seguridade Social foi introduzido no ordenamento jurídico pátrio com a promulgação da Constituição Federal de 1988, também conhecida como Constituição Cidadã. ( ) Certo ( ) Errado A Seguridade Social é o conjunto integrado de ações de inciativa dos poderes públicos e da sociedade destinado a garantir os direitos relativos à saúde, à previdência e à assistência social é fruto da evolução legislativa quanto à garantia de direitos sociais no Brasil. Antes da Constituição Federal de 1988, já existiam isoladamente ações de Saúde, Assistência Social e também de Previdência Social, entretanto, a sistematização dessas três áreas em um conjunto denominado Seguridade Social só surgiu com a CF 88. GABARITO: CERTO. 7- (Inédita) As Caixas de Aposentadoria e Pensão foram instituídas originalmente pela Lei Eloy Chaves para a categoria dos ferroviários. As CAP’s eram administradas pelo poder público e organizadas por empresa. Com o decorrer do tempo, outras categorias se mobilizaram e formaram novas Caixas de Aposentadoria e Pensões. ( ) Certo ( ) Errado A Lei Eloy Chaves (Decreto-Lei nº 4.682 de 1923) é apontada como primeiro marco da previdência social brasileiro. A lei criou a Caixa de Aposentadoria e Pensão – CAP em favor dos empregados de empresas do setor ferroviário. Após o surgimento das Caixas de Aposentadoria e Pensão dos ferroviários, outras categorias também criaram suas CAPs. As respectivas CAPs eram administradas e organizadas pelas empresas e cada uma delas possuía sua própria caixa. As CAPs tinham natureza privada e eram financiadas pelas contribuições das empresas e dos empregados. A questão afirma que as CAPs eram administradas pelo poder público, mas na verdade eram organizadas pelas empresas. Portanto, está incorreta.","region":"final","n":48},{"banca":"Inédita","enun":"Sobre a origem e evolução da Seguridade Social no Brasil, podemos afirmar que a entidade integrante do Sistema Nacional de Previdência e Assistência Social (SINPAS) responsável pela concessão e manutenção dos benefícios previdenciários era o Instituto Nacional de Previdência Social (INPS). ( ) Certo ( ) Errado","opts":null,"gab":"C","tipo":"CE","com":"O enunciado da questão está perfeito. Realmente, o INPS era a entidade integrante do SINPAS que era responsável pela concessão e manutenção dos benefícios previdenciários. Só para nos recordarmos, vamos lembrar quais eram as entidades integrantes do SINPAS: o INPS: Conceder Benefícios; o IAPAS: Arrecadar e Fiscalizar as Contribuições Previdenciárias; o INAMPS: Assistência Médica Contributiva (hoje não-contributiva) o LBA: Legião Brasileira de Assistência; o FUNABEM: Fundação Nacional do Bem-Estar do Menor; o DATAPREV: Processamento de Dados (único que ainda existe); o CEME: Central de Medicamentos.","region":"final","n":49},{"banca":"Inédita","enun":"Acerca da origem e evolução da Seguridade Social no Brasil, podemos afirmar que a Lei Eloy Chaves criou os Institutos de Aposentadorias e Pensões (IAP’s) para os ferroviários. ( ) Certo ( ) Errado","opts":null,"gab":"E","tipo":"CE","com":"A questão está incorreta ao relacionar os Institutos de Aposentadorias e Pensões à Lei Eloy Chaves. A Lei Eloy Chaves instituiu as Caixas de Aposentadorias e Pensões (CAP’s) para os ferroviários. As CAP’s eram organizadas por empresas e tinham natureza privada. Em momento posterior, as CAP’s foram unificadas por categoria profissional, dando origem aos IAP’s. Os IAP’s eram autarquias de abrangência nacional. Portanto, a Lei Eloy Chaves criou as CAP’s e não os IAP’s.","region":"final","n":50},{"banca":"Inédita","enun":"A proteção previdenciária aos trabalhadores rurais iniciou-se com o FUNRURAL, na década de 60, entretanto, a previsão de uniformidade de benefícios entre trabalhadores urbanos e rurais somente surgiu com a Constituição Federal de 1988. ( ) Certo ( ) Errado","opts":null,"gab":"C","tipo":"CE","com":"A questão trata corretamente da evolução da proteção social aos trabalhadores rurais. Realmente, a proteção social na área rural teve início em 1963, ano em que foi criado o Fundo de Assistência ao Trabalhador Rural – FUNRURAL. Entretanto, sempre houveram diferenças na proteção social oferecida aos trabalhadores urbanos e rurais. A CF 88 veio para mudar isso, trazendo o princípio da uniformidade e equivalência dos benefícios e serviços às populações urbanas e rurais. A uniformidade preconiza que a seguridade social deve oferecer cobertura aos mesmos riscos sociais a todos, em outras palavras, a proteção à doença, maternidade, morte, invalidez e idade avançada deve ser oferecida tanto à população urbana quanto à população rural. Já a equivalência se refere ao valor pecuniário dos benefícios oferecidos. O valor não deverá necessariamente ser igual, mas deverá ser equivalente.","region":"final","n":51},{"banca":"Inédita","enun":"Sobre a origem e evolução da Seguridade Social no Brasil, é correto afirmar:","opts":[["a","A Eloy Chaves instituiu as caixas de aposentadorias e pensões para os ferroviários e servidores públicos."],["b","As caixas de aposentadorias e pensões eram organizadas por categoria profissional e tinham natureza privada."],["c","Com a criação dos Institutos de Aposentadoria e Pensão, a organização da Previdência Social passou a se dar em âmbito estadual."],["d","A proteção previdenciária aos trabalhadores rurais se iniciou com o FUNRURAL, na década de 60, entretanto, a previsão de uniformidade de benefícios entre trabalhadores urbanos e rurais somente surgiu com a Constituição Federal de 1988."],["e","O Instituto Nacional de Previdência Social (INPS) era responsável pela concessão e manutenção dos benefícios previdenciários, além de ser responsável pela fiscalização, arrecadação e cobrança das contribuições previdenciárias. COMENTÁTIOS: Vamos em busca da alternativa CORRETA."]],"gab":"D","tipo":"ME","com":"Sem comentário detalhado no PDF para esta questão. Confira o gabarito e, em caso de dúvida, revisite a linha do tempo na teoria.","region":"final","n":52},{"banca":"Inédita","enun":"A respeito da origem e evolução da Seguridade Social no Brasil, assinale a afirmativa correta:","opts":[["a","A Constituição Federal de 1967 foi a primeira a prever o sistema de Seguridade Social como o conhecemos hoje."],["b","O Montepio Geral dos Servidores do Estado, conhecido como Mongeral, é uma das formas mais antigas em que se manifestou a Assistência Social no Brasil."],["c","Antes da publicação da Lei Eloy Chaves já havia diplomas normativos concedendo aposentadorias para determinadas categorias profissionais, como é o caso da Constituição de 1891, que previa aposentadoria para funcionários públicos em caso de invalidez."],["d","Com a reforma previdenciária que foi realizada em 1998, durante o governo do presidente Fernando Henrique Cardoso, por meio da Emenda Constitucional 20, surgiu a obrigação de idade mínima para aposentadorias concedidas tanto no âmbito do RGPS quanto do RPPS."],["e","O sistema previdenciário brasileiro se baseia no conceito bismarckiano, também conhecido como de capitalização. COMENTÁTIOS:"]],"gab":"C","tipo":"ME","com":"Sem comentário detalhado no PDF para esta questão. Confira o gabarito e, em caso de dúvida, revisite a linha do tempo na teoria.","region":"final","n":53},{"banca":"CESPE – SLU DF - 2019","enun":"Acerca da história da seguridade social, da política social e das políticas setoriais, considerando suas respectivas legislações, julgue o item subsecutivo. Os direitos da seguridade social, seja no modelo bismarckiano, seja no modelo beveridgiano, têm como parâmetro histórico central os direitos do trabalho. ( ) Certo ( ) Errado","opts":null,"gab":"C","tipo":"CE","com":"CORRETA. Os modelos apresentados durante a evolução da seguridade social no mundo tinham, entre os objetivos base, garantir benefícios aos trabalhadores que estavam impossibilitados de trabalhar. Neste contexto, podemos citar tanto os planos que seguiram o modelo bismarckiano quanto os que seguiram o modelo beveridgiano.","region":"final","n":54}];
+
+/* armazenamento resiliente: localStorage quando disponível, memória como reserva */
+const mem = {};
+const store = {
+  get(k){ try { return localStorage.getItem(k); } catch(e){ return mem[k] ?? null; } },
+  set(k,v){ try { localStorage.setItem(k,v); } catch(e){ mem[k]=v; } },
+  del(k){ try { localStorage.removeItem(k); } catch(e){ delete mem[k]; } }
+};
+const CH_ERR = 'inss_a10_erradas';
+
+let fila = [], pos = 0, acertos = 0, erros = 0, erradasSessao = [], respondida = false;
+
+const $ = id => document.getElementById(id);
+const telas = { inicio:$('tela-inicio'), questao:$('tela-questao'), fim:$('tela-fim') };
+
+function mostraTela(nome){
+  Object.values(telas).forEach(t => t.classList.remove('ativa'));
+  telas[nome].classList.add('ativa');
+  $('rodape').classList.remove('mostra');
+  window.scrollTo(0,0);
+}
+
+function erradasSalvas(){
+  try { return JSON.parse(store.get(CH_ERR) || '[]'); } catch(e){ return []; }
+}
+function salvaErradas(lista){ store.set(CH_ERR, JSON.stringify(lista)); }
+
+function atualizaInicio(){
+  $('st-total').textContent = QUESTOES.length;
+  $('st-ce').textContent = QUESTOES.filter(q=>q.tipo==='CE').length;
+  $('st-me').textContent = QUESTOES.filter(q=>q.tipo==='ME').length;
+  const n = erradasSalvas().length;
+  $('qt-erradas').textContent = n ? `(${n} guardadas)` : '(nenhuma ainda)';
+  $('bt-erradas').disabled = n === 0;
+}
+
+function embaralha(a){
+  for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; }
+  return a;
+}
+
+function iniciaTreino(base){
+  let lista = base.slice();
+  if($('tg-so-ce').getAttribute('aria-checked')==='true') lista = lista.filter(q=>q.tipo==='CE');
+  if(!lista.length){ lista = base.slice(); }
+  if($('tg-embaralhar').getAttribute('aria-checked')==='true') embaralha(lista);
+  fila = lista; pos = 0; acertos = 0; erros = 0; erradasSessao = [];
+  mostraTela('questao'); rende();
+}
+
+function rende(){
+  respondida = false;
+  const q = fila[pos];
+  $('pg-num').textContent = `${pos+1}/${fila.length}`;
+  $('pg-fill').style.width = `${(pos)/fila.length*100}%`;
+  $('pl-ok').textContent = acertos; $('pl-no').textContent = erros;
+  $('hdr-contador').textContent = `${pos+1} de ${fila.length}`;
+  $('q-banca').textContent = q.banca;
+  $('q-enun').textContent = q.enun;
+  $('q-fb').classList.remove('mostra');
+  $('rodape').classList.remove('mostra');
+  const carimboVelho = document.querySelector('.carimbo'); if(carimboVelho) carimboVelho.remove();
+  const opts = $('q-opts'); opts.innerHTML = '';
+  if(q.tipo==='ME'){
+    $('q-ce').style.display = 'none';
+    q.opts.forEach(([letra, texto])=>{
+      const li = document.createElement('li');
+      const b = document.createElement('button');
+      b.innerHTML = `<b>${letra})</b> <span></span>`;
+      b.querySelector('span').textContent = texto;
+      b.addEventListener('click', ()=>responde(letra.toUpperCase(), b));
+      li.appendChild(b); opts.appendChild(li);
+    });
+  } else {
+    $('q-ce').style.display = 'grid';
+  }
+}
+
+function responde(r, botaoME){
+  if(respondida) return;
+  respondida = true;
+  const q = fila[pos];
+  const acertou = r === q.gab;
+  if(acertou){ acertos++; } else { erros++; erradasSessao.push(q.n); }
+
+  /* persistência do caderno de erradas */
+  let lista = erradasSalvas();
+  if(acertou){ lista = lista.filter(n=>n!==q.n); } else if(!lista.includes(q.n)){ lista.push(q.n); }
+  salvaErradas(lista);
+
+  /* carimbo */
+  const c = document.createElement('div');
+  c.className = 'carimbo ' + (acertou?'ok':'no');
+  c.textContent = acertou ? 'Certo!' : 'Errou';
+  $('q-card').appendChild(c);
+
+  /* marca alternativas */
+  if(q.tipo==='ME'){
+    document.querySelectorAll('#q-opts button').forEach(b=>{
+      const letra = b.querySelector('b').textContent.replace(')','').toUpperCase();
+      if(letra===q.gab) b.classList.add('certa');
+      else if(b===botaoME && !acertou) b.classList.add('errada');
+      b.disabled = true;
+    });
+  }
+
+  const gabTxt = q.tipo==='CE' ? (q.gab==='C'?'CERTO':'ERRADO') : `Letra ${q.gab}`;
+  const g = $('q-gab');
+  g.className = 'gabarito ' + (acertou?'ok':'no');
+  g.textContent = (acertou?'✓ Você acertou — gabarito: ':'✗ Gabarito: ') + gabTxt;
+  const com = $('q-com');
+  com.innerHTML = '<b>Comentário do professor:</b> ';
+  com.appendChild(document.createTextNode(q.com));
+  $('q-fb').classList.add('mostra');
+  $('pl-ok').textContent = acertos; $('pl-no').textContent = erros;
+  $('pg-fill').style.width = `${(pos+1)/fila.length*100}%`;
+  $('rodape').classList.add('mostra');
+}
+
+function proxima(){
+  if(pos+1 < fila.length){ pos++; rende(); }
+  else { fimTreino(); }
+}
+
+function fimTreino(){
+  mostraTela('fim');
+  $('hdr-contador').textContent = '';
+  const total = acertos+erros;
+  const pct = total? Math.round(acertos/total*100) : 0;
+  $('fim-nota').textContent = `${acertos}/${total}`;
+  $('fim-ok').textContent = acertos; $('fim-no').textContent = erros;
+  $('fim-pct').textContent = pct+'%';
+  const frases = pct>=90 ? 'Nível banca: você está lendo a mente do examinador. 🏆'
+    : pct>=75 ? 'Muito bom! Só falta lapidar as armadilhas. 💪'
+    : pct>=50 ? 'Base sólida — agora é rodar as erradas até zerar. 🎯'
+    : 'Dia de plantio: refaça as erradas e o gráfico vira. 🌱';
+  $('fim-frase').textContent = frases;
+  $('fim-erradas').innerHTML = erradasSessao.length
+    ? `<b>Questões erradas nesta rodada:</b> ${erradasSessao.map(n=>'nº '+n).join(', ')} — elas ficaram guardadas no botão "Refazer só as que errei".`
+    : 'Nenhum erro nesta rodada. Gabaritou! ✨';
+  $('bt-refazer-erradas').disabled = erradasSessao.length===0;
+}
+
+/* ligações */
+$('bt-iniciar').addEventListener('click', ()=>iniciaTreino(QUESTOES));
+$('bt-erradas').addEventListener('click', ()=>{
+  const ns = erradasSalvas();
+  iniciaTreino(QUESTOES.filter(q=>ns.includes(q.n)));
+});
+$('bt-zerar').addEventListener('click', ()=>{
+  salvaErradas([]); atualizaInicio();
+});
+$('bt-proxima').addEventListener('click', proxima);
+$('bt-voltar').addEventListener('click', ()=>{ atualizaInicio(); mostraTela('inicio'); });
+$('bt-refazer-erradas').addEventListener('click', ()=>{
+  iniciaTreino(QUESTOES.filter(q=>erradasSessao.includes(q.n)));
+});
+document.querySelectorAll('#q-ce button').forEach(b=>{
+  b.addEventListener('click', ()=>responde(b.dataset.r, null));
+});
+document.querySelectorAll('.chave').forEach(ch=>{
+  ch.addEventListener('click', ()=>{
+    ch.setAttribute('aria-checked', ch.getAttribute('aria-checked')==='true' ? 'false' : 'true');
+  });
+});
+
+atualizaInicio();
+</script>
+</body>
+</html>
