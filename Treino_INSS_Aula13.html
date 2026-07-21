@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1"/>
+<title>INSS · Aula 13 — Legislação Previdenciária</title>
+<style>
+:root{
+  --teal:#0f6e56;--teal-dk:#0d5c46;--teal-lt:#e1f5ee;
+  --amber:#b45309;--amber-lt:#fef3c7;
+  --red:#991b1b;--red-lt:#fee2e2;
+  --green:#166534;--green-lt:#dcfce7;
+  --bg:#faf9f5;--surface:#fff;--border:#e5e7eb;
+  --text:#1f2937;--muted:#6b7280;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,'Segoe UI',Roboto,sans-serif;background:var(--bg);
+  color:var(--text);min-height:100vh;padding-bottom:80px}
+
+/* ── HEADER ── */
+.hd{background:var(--teal);color:#fff;padding:14px 18px 12px;
+  position:sticky;top:0;z-index:100;box-shadow:0 2px 8px rgba(0,0,0,.22)}
+.hd-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:9px}
+.hd h1{font-size:15px;font-weight:700;letter-spacing:.2px}
+.hd .sub{font-size:11.5px;opacity:.8;margin-top:1px}
+.hd-count{font-size:13px;opacity:.88;white-space:nowrap}
+.pb-bg{background:rgba(255,255,255,.28);border-radius:99px;height:5px;overflow:hidden}
+.pb-fill{background:#fff;height:100%;border-radius:99px;transition:width .4s ease}
+.pb-label{font-size:10.5px;opacity:.85;margin-top:3px;text-align:right}
+
+/* ── CONTROLS ── */
+.ctrl{padding:10px 14px;display:flex;gap:8px;flex-wrap:wrap;
+  background:#fff;border-bottom:1px solid var(--border)}
+.btn{padding:6px 13px;border-radius:20px;border:1.5px solid var(--border);
+  background:#fff;font-size:12.5px;font-weight:500;cursor:pointer;
+  color:var(--text);transition:all .2s;white-space:nowrap}
+.btn:hover{border-color:var(--teal);color:var(--teal)}
+.btn.on{background:var(--teal);color:#fff;border-color:var(--teal)}
+.btn.danger{border-color:#dc2626;color:#dc2626}
+.btn.danger:hover{background:#dc2626;color:#fff}
+
+/* ── STATS ── */
+.stats{display:flex;gap:14px;padding:9px 16px;
+  background:var(--bg);border-bottom:1px solid var(--border);font-size:12.5px}
+.stat{display:flex;align-items:center;gap:5px}
+.dot{width:8px;height:8px;border-radius:50%}
+.dot-g{background:#16a34a}.dot-r{background:#dc2626}.dot-gr{background:#d1d5db}
+
+/* ── CARD ── */
+.cw{padding:12px 14px}
+.card{background:#fff;border-radius:14px;
+  box-shadow:0 1px 6px rgba(0,0,0,.09);overflow:hidden;position:relative}
+
+.card-meta{padding:9px 14px 8px;background:#f8f8f8;
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+.badge{font-size:11px;font-weight:600;padding:2px 9px;
+  border-radius:20px;letter-spacing:.2px}
+.b-num{background:var(--teal-lt);color:var(--teal)}
+.b-cespe{background:#dbeafe;color:#1e40af}
+.b-inedita{background:#f3e8ff;color:#7c3aed}
+.b-outro{background:#fef3c7;color:#92400e}
+.card-cargo{font-size:10.5px;color:var(--muted)}
+
+.card-body{padding:16px 14px}
+.enunciado{font-size:15px;line-height:1.62;color:var(--text);font-weight:400}
+
+/* ── BUTTONS ── */
+.ans-row{display:flex;gap:12px;padding:12px 14px 14px}
+.ans-btn{flex:1;padding:13px;border-radius:12px;border:2px solid var(--border);
+  font-size:15px;font-weight:700;cursor:pointer;background:#fff;
+  transition:all .15s;letter-spacing:.4px}
+.ans-btn:hover:not(:disabled){transform:translateY(-2px);
+  box-shadow:0 4px 14px rgba(0,0,0,.13)}
+.ans-btn:disabled{cursor:default}
+.ans-btn.cv{border-color:#16a34a;color:#16a34a}
+.ans-btn.ce{border-color:#dc2626;color:#dc2626}
+.ans-btn.sel-ok{background:#16a34a;color:#fff;border-color:#16a34a}
+.ans-btn.sel-ng{background:#dc2626;color:#fff;border-color:#dc2626}
+.ans-btn.rev-ok{background:#dcfce7;border-color:#16a34a;color:#16a34a}
+
+/* ── STAMP ── */
+.stamp-ov{position:absolute;top:0;left:0;right:0;bottom:0;
+  display:flex;align-items:center;justify-content:center;
+  pointer-events:none;opacity:0;transition:opacity .28s;z-index:10}
+.stamp-ov.show{opacity:1}
+.stamp{font-size:46px;font-weight:900;letter-spacing:4px;
+  transform:rotate(-20deg);border:5px solid;padding:5px 16px;
+  border-radius:6px;text-transform:uppercase}
+.stc{color:#16a34a;border-color:#16a34a;opacity:.58}
+.ste{color:#dc2626;border-color:#dc2626;opacity:.58}
+
+/* ── FEEDBACK ── */
+.fb{margin:0 14px 14px;border-radius:10px;overflow:hidden;display:none}
+.fb.show{display:block}
+.fb-hd{padding:9px 13px;font-size:12.5px;font-weight:700;
+  display:flex;align-items:center;gap:7px}
+.fb-bd{padding:10px 13px 12px;font-size:13.5px;line-height:1.58}
+.fb.ok .fb-hd{background:var(--green-lt);color:var(--green)}
+.fb.ok .fb-bd{background:#f0fdf4;color:#14532d}
+.fb.ng .fb-hd{background:var(--red-lt);color:var(--red)}
+.fb.ng .fb-bd{background:#fff5f5;color:#7f1d1d}
+.arm{color:#dc2626;font-weight:600}
+
+/* ── NAV ── */
+.nav-row{display:flex;gap:10px;padding:0 14px 14px}
+.nav-btn{flex:1;padding:12px;border-radius:10px;border:1.5px solid var(--border);
+  background:#fff;font-size:13.5px;font-weight:600;cursor:pointer;
+  color:var(--text);transition:all .2s}
+.nav-btn:hover{background:var(--bg)}
+.nav-btn.nx{background:var(--teal);color:#fff;border-color:var(--teal)}
+.nav-btn.nx:hover{background:var(--teal-dk)}
+
+/* ── EMPTY ── */
+.empty{text-align:center;padding:60px 20px;color:var(--muted)}
+.empty .ico{font-size:48px;margin-bottom:12px}
+.empty h3{font-size:18px;font-weight:700;margin-bottom:8px;color:var(--text)}
+.empty p{font-size:14px;line-height:1.5}
+
+/* ── RESULTS ── */
+.results{padding:24px 16px;text-align:center}
+.r-ico{font-size:56px;margin-bottom:10px}
+.results h2{font-size:22px;font-weight:800;margin-bottom:6px}
+.r-score{font-size:52px;font-weight:900;color:var(--teal);line-height:1;margin:10px 0}
+.r-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:18px 0}
+.r-stat{background:#fff;border-radius:12px;padding:14px;
+  box-shadow:0 1px 4px rgba(0,0,0,.08)}
+.r-stat .n{font-size:28px;font-weight:800}
+.r-stat .lbl{font-size:11.5px;color:var(--muted);margin-top:2px}
+.r-stat.g .n{color:#16a34a}.r-stat.r .n{color:#dc2626}
+.r-btn{display:block;width:100%;padding:14px;border-radius:12px;
+  margin-top:10px;font-size:14px;font-weight:600;cursor:pointer;border:none}
+.r-btn.main{background:var(--teal);color:#fff}
+.r-btn.sec{background:#fff;color:var(--text);border:1.5px solid var(--border)}
+
+@media(max-width:400px){
+  .enunciado{font-size:14px}.stamp{font-size:36px}.ans-btn{font-size:14px}
+}
+</style>
+</head>
+<body>
+
+<div class="hd">
+  <div class="hd-row">
+    <div>
+      <h1>INSS · Aula 13</h1>
+      <div class="sub">Legislação Previdenciária</div>
+    </div>
+    <div class="hd-count" id="hdCount">1/11</div>
+  </div>
+  <div class="pb-bg"><div class="pb-fill" id="pbFill" style="width:0%"></div></div>
+  <div class="pb-label" id="pbLabel">0 de 11 respondidas</div>
+</div>
+
+<div class="ctrl">
+  <button class="btn on" id="bAll"    onclick="setFilter('all')">📋 Todas</button>
+  <button class="btn"    id="bCespe"  onclick="setFilter('cespe')">🎯 CESPE</button>
+  <button class="btn"    id="bErrors" onclick="setFilter('errors')">❌ Erros</button>
+  <button class="btn"    id="bShuffle" onclick="toggleShuffle()">🔀 Embaralhar</button>
+  <button class="btn danger"          onclick="resetAll()">↺ Reiniciar</button>
+</div>
+
+<div class="stats">
+  <div class="stat"><div class="dot dot-g"></div><span id="sC">0 acertos</span></div>
+  <div class="stat"><div class="dot dot-r"></div><span id="sE">0 erros</span></div>
+  <div class="stat"><div class="dot dot-gr"></div><span id="sR">11 restantes</span></div>
+</div>
+
+<div id="area"></div>
+
+<script>
+const KEY = 'inss_a13_erradas';
+
+const Q = [
+  {
+    id:1, banca:"CESPE", cargo:"Analista Judiciário – STJ – 2018",
+    e:"O princípio do direito adquirido não se aplica à seara previdenciária, pois, conforme o entendimento do Supremo Tribunal Federal, inexiste direito adquirido a regime jurídico.",
+    g:"E",
+    c:"O princípio do direito adquirido <strong>se aplica sim</strong> à seara previdenciária. Se o segurado preenche os requisitos para um benefício na vigência de uma lei, mesmo que ela seja posteriormente alterada, seu direito é preservado. A assertiva erra ao afirmar que não se aplica."
+  },
+  {
+    id:2, banca:"Inédita", cargo:"Questão Inédita",
+    e:"Quanto às fontes de direito previdenciário, podemos afirmar que a Medida Provisória 871 editada em 18/01/2019 é uma fonte primária.",
+    g:"C",
+    c:"Fontes <strong>primárias</strong> (diretas, legais ou imediatas) têm força suficiente para <em>inovar</em> no ordenamento jurídico. Medidas Provisórias são atos com força de lei emanados do Poder Executivo — portanto, fontes primárias. Fontes secundárias (decretos regulamentares, portarias, INs) apenas regulamentam, sem inovar."
+  },
+  {
+    id:3, banca:"Inédita", cargo:"Questão Inédita",
+    e:"Acerca das fontes legislativas de direito previdenciário, podemos afirmar que a Instrução Normativa 77/2015 e o Decreto 3.048/99 são exemplos de fontes secundárias.",
+    g:"C",
+    c:"<span class='arm'>⚠️ ARMADILHA:</span> O Decreto 3.048/99 (RPS) é o regulamento mais importante da previdência, mas ainda é <strong>fonte secundária</strong> (infralegal) — ele apenas regulamenta as Leis 8.212/91 e 8.213/91, sem inovar. A IN 77/2015 também é secundária. Lembre: <em>importância ≠ hierarquia.</em>"
+  },
+  {
+    id:4, banca:"CESPE", cargo:"Analista Legislativo – CAM DEP – 2014",
+    e:"As fontes formais do direito previdenciário incluem a CF e as Leis n.º 8.212/1991 e n.º 8.213/1991.",
+    g:"C",
+    c:"Fontes formais são aquelas pela qual o direito se manifesta. A CF e as Leis 8.212/91 (custeio) e 8.213/91 (benefícios) são <strong>fontes formais primárias imediatas</strong> — têm força para inovar no ordenamento jurídico. Assertiva correta."
+  },
+  {
+    id:5, banca:"CESPE", cargo:"Analista Legislativo – CAM DEP – 2014",
+    e:"O direito previdenciário é classificado como ramo do direito privado, tendo reconhecida, pela doutrina majoritária, sua autonomia didática em relação a outros ramos do direito.",
+    g:"E",
+    c:"<span class='arm'>⚠️ NUNCA</span> será direito privado. Doutrinadores mais atuais classificam-no como ramo do <strong>direito social</strong>; os tradicionalistas, como <strong>direito público</strong>. Jamais privado: há participação do Estado com poder de império — filiação compulsória + exigência de contribuições. A assertiva erra ao dizer 'privado'."
+  },
+  {
+    id:6, banca:"CESPE", cargo:"Analista Legislativo – CAM DEP – 2014",
+    e:"A vigência da lei de natureza previdenciária segue a regulamentação da Lei de Introdução às Normas do Direito Brasileiro, de modo que, salvo disposição contrária, entra em vigor quarenta e cinco dias depois de oficialmente publicada.",
+    g:"C",
+    c:"Art. 1º da LINDB: <em>'Salvo disposição em contrário, a lei começa a vigorar em todo o país quarenta e cinco dias depois de oficialmente publicada.'</em> <span class='arm'>⚠️</span> Fique atento ao <strong>'salvo disposição em contrário'</strong> — se a própria lei fixar data, vale o prazo da lei. Os 90 dias (noventena) são para <em>eficácia</em> de contribuições, não para vigência."
+  },
+  {
+    id:7, banca:"CESPE", cargo:"Analista Legislativo – CAM DEP – 2014 (Adaptada)",
+    e:"Ao se utilizar do método de interpretação teleológico, o intérprete busca compatibilizar o texto legal a ser interpretado com as demais normas que compõem o ordenamento jurídico, visualizando a lei objeto de interpretação como parte de um todo.",
+    g:"E",
+    c:"<span class='arm'>⚠️ ARMADILHA CLÁSSICA — teleológica × sistemática.</span> A descrição ('compatibilizar com as demais normas', 'parte de um todo') é da <strong>interpretação SISTEMÁTICA</strong>. A <strong>teleológica</strong> busca o <em>fim almejado pelo legislador</em> — a finalidade da norma. Macete: <em>Telos = finalidade; Sistema = ordenamento como todo.</em>"
+  },
+  {
+    id:8, banca:"CESPE", cargo:"Analista Legislativo – CAM DEP – 2014 (Adaptada)",
+    e:"Ao se utilizar do método de interpretação sistemático, o intérprete busca compatibilizar o texto legal a ser interpretado com as demais normas que compõem o ordenamento jurídico, visualizando a lei objeto de interpretação como parte de um todo.",
+    g:"C",
+    c:"A <strong>interpretação sistemática</strong> analisa a norma como parte de um sistema jurídico: em conjunto e compatível com outros diplomas legais e princípios de direito, buscando harmonia e unicidade do ordenamento. Compare com a teleológica (busca a <em>finalidade</em>) e a gramatical (busca a <em>literalidade</em>)."
+  },
+  {
+    id:9, banca:"CESPE", cargo:"Analista Legislativo – CAM DEP – 2014 (Adaptada)",
+    e:"Ao se utilizar do método de interpretação gramatical, o intérprete busca a literalidade do dispositivo legal.",
+    g:"C",
+    c:"A <strong>interpretação gramatical</strong> (literal / semântica / textual / verbal) analisa o rigoroso significado literal das palavras do texto legal, sem considerar outros valores. Por ser método <em>muito restrito</em>, não deve ser utilizada isoladamente, salvo disposição em contrário."
+  },
+  {
+    id:10, banca:"CESPE", cargo:"Técnico do Seguro Social – INSS – 2016",
+    e:"Lei complementar editada pela União poderá autorizar os estados e o DF a legislar sobre questões específicas relacionadas à seguridade social.",
+    g:"C",
+    c:"Art. 22, XXIII CF: competência <em>privativa</em> da União sobre <strong>seguridade social</strong>. Parágrafo único: lei complementar pode autorizar os Estados (e, por extensão, o DF) a legislar sobre questões específicas. <span class='arm'>⚠️</span> Não confunda: seguridade (art. 22, privativa) ≠ previdência (art. 24, XII, <em>concorrente</em>)."
+  },
+  {
+    id:11, banca:"CESPE", cargo:"Auditor de Controle Externo – TCE/PA – 2016",
+    e:"É competência privativa da União legislar sobre previdência social, sendo, portanto, vedado aos estados e ao Distrito Federal legislar sobre essa matéria.",
+    g:"E",
+    c:"<span class='arm'>⚠️ ARMADILHA — seguridade × previdência.</span> <strong>Seguridade Social</strong> (art. 22, XXIII) → privativa da União. <strong>Previdência Social</strong> (art. 24, XII) → <em>concorrente</em> (União + Estados + DF). A assertiva erra em dois pontos: diz 'privativa' (é concorrente) e 'vedado' (não é — Estados legislam supletivamente sobre previdência)."
+  }
+];
+
+// ── STATE ──
+let pool=[], cur=0, ans={}, nC=0, nE=0;
+let mode='all', shuf=false;
+let errs=new Set();
+
+function loadE(){try{const s=localStorage.getItem(KEY);if(s)errs=new Set(JSON.parse(s))}catch(e){}}
+function saveE(){try{localStorage.setItem(KEY,JSON.stringify([...errs]))}catch(e){}}
+
+function init(){ loadE(); apply(); }
+
+function apply(){
+  ans={}; nC=0; nE=0; cur=0;
+  let base=Q;
+  if(mode==='cespe') base=Q.filter(q=>q.banca==='CESPE');
+  else if(mode==='errors') base=Q.filter(q=>errs.has(q.id));
+  if(!base.length){ showEmpty(); return; }
+  pool=[...base];
+  if(shuf){ for(let i=pool.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[pool[i],pool[j]]=[pool[j],pool[i]];} }
+  updStats(); render();
+}
+
+function setFilter(m){
+  mode=m;
+  ['All','Cespe','Errors'].forEach(x=>{
+    const el=document.getElementById('b'+x);
+    if(el) el.classList.toggle('on', m===x.toLowerCase());
+  });
+  apply();
+}
+
+function toggleShuffle(){
+  shuf=!shuf;
+  const b=document.getElementById('bShuffle');
+  b.textContent=shuf?'🔀 Embaralhado ✓':'🔀 Embaralhar';
+  b.classList.toggle('on',shuf);
+  apply();
+}
+
+function resetAll(){ errs.clear(); saveE(); apply(); }
+
+function updStats(){
+  const tot=pool.length, done=nC+nE, pct=tot?Math.round(done/tot*100):0;
+  document.getElementById('pbFill').style.width=pct+'%';
+  document.getElementById('pbLabel').textContent=`${done} de ${tot} respondidas`;
+  document.getElementById('hdCount').textContent=`${Math.min(cur+1,tot)}/${tot}`;
+  document.getElementById('sC').textContent=nC+' acerto'+(nC!==1?'s':'');
+  document.getElementById('sE').textContent=nE+' erro'+(nE!==1?'s':'');
+  document.getElementById('sR').textContent=(tot-done)+' restante'+(tot-done!==1?'s':'');
+}
+
+function cls(opt,q,ua,done){
+  if(!done) return opt==='C'?'cv':'ce';
+  if(opt===ua) return ua===q.g?'sel-ok':'sel-ng';
+  if(opt===q.g) return 'rev-ok';
+  return opt==='C'?'cv':'ce';
+}
+
+function render(){
+  if(cur>=pool.length){ showResults(); return; }
+  const q=pool[cur], done=ans[cur]!==undefined, ua=ans[cur];
+  const isOk=done&&ua===q.g;
+
+  document.getElementById('area').innerHTML=`
+  <div class="cw">
+    <div class="card" id="card">
+      <div class="stamp-ov" id="stamp">
+        <div class="stamp ${q.g==='C'?'stc':'ste'}">${q.g==='C'?'CERTO':'ERRADO'}</div>
+      </div>
+      <div class="card-meta">
+        <span class="badge b-num">Q${cur+1}</span>
+        <span class="badge ${q.banca==='CESPE'?'b-cespe':q.banca==='Inédita'?'b-inedita':'b-outro'}">${q.banca}</span>
+        <span class="card-cargo">${q.cargo}</span>
+      </div>
+      <div class="card-body">
+        <div class="enunciado">${q.e}</div>
+      </div>
+      <div class="ans-row">
+        <button class="ans-btn ${cls('C',q,ua,done)}" onclick="answer('C')" ${done?'disabled':''}>✓ CERTO</button>
+        <button class="ans-btn ${cls('E',q,ua,done)}" onclick="answer('E')" ${done?'disabled':''}>✗ ERRADO</button>
+      </div>
+      ${done?`
+      <div class="fb show ${isOk?'ok':'ng'}">
+        <div class="fb-hd">${isOk?'✅ Correto! Gabarito: ':'❌ Errado! Gabarito: '}<strong>${q.g==='C'?'CERTO':'ERRADO'}</strong></div>
+        <div class="fb-bd">${q.c}</div>
+      </div>
+      <div class="nav-row">
+        ${cur>0?`<button class="nav-btn" onclick="go(${cur-1})">← Anterior</button>`:'<div></div>'}
+        ${cur<pool.length-1
+          ?`<button class="nav-btn nx" onclick="go(${cur+1})">Próxima →</button>`
+          :`<button class="nav-btn nx" onclick="showResults()">🏁 Ver resultado</button>`}
+      </div>`:''}
+    </div>
+  </div>`;
+
+  if(done) setTimeout(()=>{const s=document.getElementById('stamp');if(s)s.classList.add('show');},60);
+  updStats();
+}
+
+function answer(ch){
+  if(ans[cur]!==undefined) return;
+  const q=pool[cur];
+  ans[cur]=ch;
+  if(ch===q.g) nC++;
+  else{ nE++; errs.add(q.id); saveE(); }
+  render();
+  setTimeout(()=>{const s=document.getElementById('stamp');if(s)s.classList.add('show');},90);
+}
+
+function go(i){ cur=i; render(); }
+
+function showEmpty(){
+  document.getElementById('area').innerHTML=`
+  <div class="empty">
+    <div class="ico">📭</div>
+    <h3>Nenhuma questão aqui</h3>
+    <p>${mode==='errors'?'Sem erros registrados nesta aula. Parabéns! 🎉':'Nenhuma questão encontrada com este filtro.'}</p>
+  </div>`;
+}
+
+function showResults(){
+  const tot=pool.length, pct=tot?Math.round(nC/tot*100):0;
+  const ico=pct>=80?'🏆':pct>=60?'💪':'📚';
+  document.getElementById('area').innerHTML=`
+  <div class="results">
+    <div class="r-ico">${ico}</div>
+    <h2>Resultado Final</h2>
+    <p style="color:var(--muted);font-size:13.5px">Aula 13 — Legislação Previdenciária</p>
+    <div class="r-score">${pct}%</div>
+    <div class="r-grid">
+      <div class="r-stat g"><div class="n">${nC}</div><div class="lbl">Acertos</div></div>
+      <div class="r-stat r"><div class="n">${nE}</div><div class="lbl">Erros</div></div>
+      <div class="r-stat"><div class="n">${tot}</div><div class="lbl">Total</div></div>
+      <div class="r-stat"><div class="n">${errs.size}</div><div class="lbl">No caderno</div></div>
+    </div>
+    ${nE>0?`<button class="r-btn main" onclick="setFilter('errors')">Refazer só os erros (${nE})</button>`:''}
+    <button class="r-btn sec" onclick="resetAll()">↺ Recomeçar do zero</button>
+  </div>`;
+  document.getElementById('pbFill').style.width='100%';
+  document.getElementById('pbLabel').textContent=`${tot} de ${tot} respondidas`;
+  updStats();
+}
+
+init();
+</script>
+</body>
+</html>
