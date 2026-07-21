@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1"/>
+<title>INSS · Aula 15 — RPPS</title>
+<style>
+:root{
+  --teal:#0f6e56;--teal-dk:#0d5c46;--teal-lt:#e1f5ee;
+  --amber:#b45309;--amber-lt:#fef3c7;
+  --red:#991b1b;--red-lt:#fee2e2;
+  --green:#166534;--green-lt:#dcfce7;
+  --bg:#faf9f5;--surface:#fff;--border:#e5e7eb;
+  --text:#1f2937;--muted:#6b7280;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,'Segoe UI',Roboto,sans-serif;background:var(--bg);
+  color:var(--text);min-height:100vh;padding-bottom:80px}
+.hd{background:var(--teal);color:#fff;padding:14px 18px 12px;
+  position:sticky;top:0;z-index:100;box-shadow:0 2px 8px rgba(0,0,0,.22)}
+.hd-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:9px}
+.hd h1{font-size:15px;font-weight:700}
+.hd .sub{font-size:11.5px;opacity:.8;margin-top:1px}
+.hd-count{font-size:13px;opacity:.88}
+.pb-bg{background:rgba(255,255,255,.28);border-radius:99px;height:5px;overflow:hidden}
+.pb-fill{background:#fff;height:100%;border-radius:99px;transition:width .4s ease}
+.pb-label{font-size:10.5px;opacity:.85;margin-top:3px;text-align:right}
+.ctrl{padding:10px 14px;display:flex;gap:8px;flex-wrap:wrap;
+  background:#fff;border-bottom:1px solid var(--border)}
+.btn{padding:6px 13px;border-radius:20px;border:1.5px solid var(--border);
+  background:#fff;font-size:12.5px;font-weight:500;cursor:pointer;
+  color:var(--text);transition:all .2s;white-space:nowrap}
+.btn:hover{border-color:var(--teal);color:var(--teal)}
+.btn.on{background:var(--teal);color:#fff;border-color:var(--teal)}
+.btn.danger{border-color:#dc2626;color:#dc2626}
+.btn.danger:hover{background:#dc2626;color:#fff}
+.stats{display:flex;gap:14px;padding:9px 16px;
+  background:var(--bg);border-bottom:1px solid var(--border);font-size:12.5px}
+.stat{display:flex;align-items:center;gap:5px}
+.dot{width:8px;height:8px;border-radius:50%}
+.dot-g{background:#16a34a}.dot-r{background:#dc2626}.dot-gr{background:#d1d5db}
+.cw{padding:12px 14px}
+.card{background:#fff;border-radius:14px;
+  box-shadow:0 1px 6px rgba(0,0,0,.09);overflow:hidden;position:relative}
+.card-meta{padding:9px 14px 8px;background:#f8f8f8;
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+.badge{font-size:11px;font-weight:600;padding:2px 9px;border-radius:20px}
+.b-num{background:var(--teal-lt);color:var(--teal)}
+.b-cespe{background:#dbeafe;color:#1e40af}
+.b-fcc{background:#ede9fe;color:#5b21b6}
+.b-inedita{background:#f3e8ff;color:#7c3aed}
+.b-outro{background:#fef3c7;color:#92400e}
+.b-me{background:#fff7ed;color:#c2410c}
+.card-cargo{font-size:10.5px;color:var(--muted)}
+.card-body{padding:16px 14px}
+.enunciado{font-size:15px;line-height:1.62;color:var(--text)}
+/* C/E buttons */
+.ans-row{display:flex;gap:12px;padding:12px 14px 14px}
+.ans-btn{flex:1;padding:13px;border-radius:12px;border:2px solid var(--border);
+  font-size:15px;font-weight:700;cursor:pointer;background:#fff;
+  transition:all .15s;letter-spacing:.4px}
+.ans-btn:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 4px 14px rgba(0,0,0,.13)}
+.ans-btn:disabled{cursor:default}
+.ans-btn.cv{border-color:#16a34a;color:#16a34a}
+.ans-btn.ce{border-color:#dc2626;color:#dc2626}
+.ans-btn.sel-ok{background:#16a34a;color:#fff;border-color:#16a34a}
+.ans-btn.sel-ng{background:#dc2626;color:#fff;border-color:#dc2626}
+.ans-btn.rev-ok{background:#dcfce7;border-color:#16a34a;color:#16a34a}
+/* Multiple choice options */
+.opts{padding:0 14px 14px;display:flex;flex-direction:column;gap:8px}
+.opt-btn{width:100%;padding:12px 14px;border-radius:10px;border:1.5px solid var(--border);
+  background:#fff;font-size:14px;text-align:left;cursor:pointer;line-height:1.5;
+  transition:all .15s;display:flex;gap:10px;align-items:flex-start}
+.opt-btn:hover:not(:disabled){border-color:var(--teal);background:#f0fdf4}
+.opt-btn:disabled{cursor:default}
+.opt-lbl{font-weight:700;min-width:18px;color:var(--muted)}
+.opt-btn.sel-ok{background:#dcfce7;border-color:#16a34a}
+.opt-btn.sel-ok .opt-lbl{color:#16a34a}
+.opt-btn.sel-ng{background:#fee2e2;border-color:#dc2626}
+.opt-btn.sel-ng .opt-lbl{color:#dc2626}
+.opt-btn.rev-ok{background:#f0fdf4;border-color:#16a34a}
+.opt-btn.rev-ok .opt-lbl{color:#16a34a}
+/* Stamp */
+.stamp-ov{position:absolute;top:0;left:0;right:0;bottom:0;
+  display:flex;align-items:center;justify-content:center;
+  pointer-events:none;opacity:0;transition:opacity .28s;z-index:10}
+.stamp-ov.show{opacity:1}
+.stamp{font-size:46px;font-weight:900;letter-spacing:4px;
+  transform:rotate(-20deg);border:5px solid;padding:5px 16px;
+  border-radius:6px;text-transform:uppercase}
+.stc{color:#16a34a;border-color:#16a34a;opacity:.58}
+.ste{color:#dc2626;border-color:#dc2626;opacity:.58}
+/* Feedback */
+.fb{margin:0 14px 14px;border-radius:10px;overflow:hidden;display:none}
+.fb.show{display:block}
+.fb-hd{padding:9px 13px;font-size:12.5px;font-weight:700;display:flex;align-items:center;gap:7px}
+.fb-bd{padding:10px 13px 12px;font-size:13.5px;line-height:1.58}
+.fb.ok .fb-hd{background:var(--green-lt);color:var(--green)}
+.fb.ok .fb-bd{background:#f0fdf4;color:#14532d}
+.fb.ng .fb-hd{background:var(--red-lt);color:var(--red)}
+.fb.ng .fb-bd{background:#fff5f5;color:#7f1d1d}
+.arm{color:#dc2626;font-weight:600}
+/* Nav */
+.nav-row{display:flex;gap:10px;padding:0 14px 14px}
+.nav-btn{flex:1;padding:12px;border-radius:10px;border:1.5px solid var(--border);
+  background:#fff;font-size:13.5px;font-weight:600;cursor:pointer;color:var(--text);transition:all .2s}
+.nav-btn:hover{background:var(--bg)}
+.nav-btn.nx{background:var(--teal);color:#fff;border-color:var(--teal)}
+.nav-btn.nx:hover{background:var(--teal-dk)}
+/* Empty / Results */
+.empty{text-align:center;padding:60px 20px;color:var(--muted)}
+.empty .ico{font-size:48px;margin-bottom:12px}
+.empty h3{font-size:18px;font-weight:700;margin-bottom:8px;color:var(--text)}
+.results{padding:24px 16px;text-align:center}
+.r-ico{font-size:56px;margin-bottom:10px}
+.results h2{font-size:22px;font-weight:800;margin-bottom:6px}
+.r-score{font-size:52px;font-weight:900;color:var(--teal);line-height:1;margin:10px 0}
+.r-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:18px 0}
+.r-stat{background:#fff;border-radius:12px;padding:14px;box-shadow:0 1px 4px rgba(0,0,0,.08)}
+.r-stat .n{font-size:28px;font-weight:800}
+.r-stat .lbl{font-size:11.5px;color:var(--muted);margin-top:2px}
+.r-stat.g .n{color:#16a34a}.r-stat.r .n{color:#dc2626}
+.r-btn{display:block;width:100%;padding:14px;border-radius:12px;margin-top:10px;
+  font-size:14px;font-weight:600;cursor:pointer;border:none}
+.r-btn.main{background:var(--teal);color:#fff}
+.r-btn.sec{background:#fff;color:var(--text);border:1.5px solid var(--border)}
+@media(max-width:400px){.enunciado{font-size:14px}.stamp{font-size:36px}}
+</style>
+</head>
+<body>
+<div class="hd">
+  <div class="hd-row">
+    <div><h1>INSS · Aula 15</h1><div class="sub">Regime Próprio de Previdência Social — RPPS</div></div>
+    <div class="hd-count" id="hdCount">1/18</div>
+  </div>
+  <div class="pb-bg"><div class="pb-fill" id="pbFill" style="width:0%"></div></div>
+  <div class="pb-label" id="pbLabel">0 de 18 respondidas</div>
+</div>
+<div class="ctrl">
+  <button class="btn on" id="bAll"    onclick="setFilter('all')">📋 Todas</button>
+  <button class="btn"    id="bCespe"  onclick="setFilter('cespe')">🎯 CESPE</button>
+  <button class="btn"    id="bCE"     onclick="setFilter('ce')">C/E</button>
+  <button class="btn"    id="bErrors" onclick="setFilter('errors')">❌ Erros</button>
+  <button class="btn"    id="bShuffle" onclick="toggleShuffle()">🔀 Embaralhar</button>
+  <button class="btn danger"           onclick="resetAll()">↺ Reiniciar</button>
+</div>
+<div class="stats">
+  <div class="stat"><div class="dot dot-g"></div><span id="sC">0 acertos</span></div>
+  <div class="stat"><div class="dot dot-r"></div><span id="sE">0 erros</span></div>
+  <div class="stat"><div class="dot dot-gr"></div><span id="sR">18 restantes</span></div>
+</div>
+<div id="area"></div>
+<script>
+const KEY='inss_a15_erradas';
+const Q=[
+  {id:1,banca:"FCC",cargo:"Analista Judiciário – TST – 2012",tipo:"ME",
+   e:"Considerando-se as normas constitucionais relativas à seguridade social dos servidores públicos, é correto afirmar:",
+   opts:{a:"o servidor titular de cargo efetivo da União, dos Estados, do DF e dos Municípios, incluídas suas autarquias e fundações, tem assegurado regime de previdência de caráter contributivo e solidário, mediante contribuição do respectivo ente público, dos servidores ativos e inativos e dos pensionistas, observados critérios que preservem o equilíbrio financeiro e atuarial.",
+         b:"a aposentadoria compulsória dos servidores se dá aos setenta anos de idade, com proventos integrais, desde que cumprido tempo mínimo de dez anos de efetivo exercício no serviço público e cinco anos no cargo efetivo.",
+         c:"o servidor será aposentado por invalidez permanente, sendo os proventos proporcionais ao tempo de contribuição, ainda que decorrente de acidente em serviço, moléstia profissional ou doença grave, contagiosa ou incurável.",
+         d:"a adoção de requisitos e critérios diferenciados para aposentadoria dos abrangidos pelo art. 40 da CF é vedada, ainda que se trate de servidores que exerçam atividades de risco.",
+         e:"o requisito de idade será reduzido em cinco anos para a aposentadoria do professor que comprove exclusivamente magistério na educação infantil e no ensino fundamental e médio, aplicando-se a mesma diminuição ao requisito de tempo de contribuição."},
+   g:"a",
+   c:"Alternativa A = art. 40 caput da CF/88, literalmente correto. B: compulsória tem proventos <em>proporcionais</em>, não integrais, e independe de tempo de serviço. C: acidente em serviço e doença grave = proventos <em>integrais</em> (não proporcionais). D: existem ressalvas (deficientes, atividade de risco, exposição a agentes nocivos, professor). E: <span class='arm'>⚠️ só a IDADE é reduzida em 5 anos</span> — o tempo de contribuição permanece igual (25 anos)."},
+  {id:2,banca:"FCC",cargo:"Analista Judiciário – TRF 5ª Região – 2013",tipo:"ME",
+   e:"O regime de previdência dos servidores públicos titulares de cargos efetivos da União, dos Estados, do DF e dos Municípios, incluídas as suas autarquias e fundações, possui caráter",
+   opts:{a:"contributivo e solidário, por imposição normativa.",
+         b:"meramente contributivo e de filiação obrigatória.",
+         c:"contributivo e solidário, desde que haja a opção do servidor público pela adesão à solidariedade.",
+         d:"meramente contributivo, não havendo solidariedade entre seus participantes, como ocorre no RGPS.",
+         e:"meramente contributivo, observados os critérios que preservem o equilíbrio financeiro e atuarial na concessão dos benefícios."},
+   g:"a",
+   c:"Art. 40 caput da CF/88: o RPPS tem caráter <strong>contributivo e solidário</strong>. A solidariedade é por <em>imposição normativa</em> (não há opção do servidor). Todas as alternativas que suprimem a solidariedade ou exigem opção estão erradas."},
+  {id:3,banca:"FCC",cargo:"Analista Judiciário – TRT 2ª Região – 2014",tipo:"ME",
+   e:"A pensão por morte de um servidor aposentado à data do óbito após a EC 41/03 corresponde, nos regimes próprios de previdência social, a",
+   opts:{a:"100% dos proventos de aposentadoria, independentemente do valor desta.",
+         b:"70% dos proventos de aposentadoria, independentemente do valor desta.",
+         c:"80% dos proventos de aposentadoria até o valor correspondente a dez salários-mínimos, acrescido de 100% da parcela excedente.",
+         d:"100% dos proventos de aposentadoria até o valor teto do regime geral, acrescido de 70% da parcela excedente.",
+         e:"90% dos proventos de aposentadoria até o valor correspondente a dez salários-mínimos, acrescido de 50% da parcela excedente."},
+   g:"d",
+   c:"Art. 40, §7º, I da CF/88 (EC 41/03): pensão por morte = totalidade dos proventos até o teto do RGPS + <strong>70% da parcela excedente</strong>. <span class='arm'>⚠️</span> Atenção: a EC 103/2019 alterou para 50% + 10% por dependente — verifique o enunciado da questão que referencia a EC 41/03."},
+  {id:4,banca:"FCC",cargo:"Analista Judiciário – TRT 5ª Região – 2013 (Adaptada)",tipo:"ME",
+   e:"As alíquotas de contribuição dos servidores ativos dos Estados, do DF e dos Municípios, para os respectivos RPPS, nos termos da Lei nº 9.717/1998:",
+   opts:{a:"deverão levar em conta o teto de contribuição instituído para os Parlamentares das Casas Legislativas.",
+         b:"resultarão sempre inferior às dos servidores inativos da União.",
+         c:"serão, necessariamente, superiores, nunca iguais ou inferiores, às dos servidores titulares de cargos efetivos da União.",
+         d:"observarão a contribuição do chefe do respectivo Poder Executivo, podendo ser superior às dos servidores da União.",
+         e:"não serão inferiores às dos servidores titulares de cargos efetivos da União, salvo se demonstrado que o respectivo RPPS não possui déficit atuarial a ser equacionado."},
+   g:"e",
+   c:"Art. 9º, §4º da EC 103/2019 (e art. 3º da Lei 9.717/98): alíquotas dos Estados/DF/Municípios <strong>não podem ser inferiores às da União</strong>. Exceção: se o RPPS <em>não tiver déficit atuarial</em>, neste caso a alíquota mínima passa a ser a do RGPS (e não a da União). <span class='arm'>⚠️</span> A questão erra ao omitir esse teto mínimo subsidiário."},
+  {id:5,banca:"COSEAC",cargo:"Guarda Civil Municipal – Niterói – 2014 (Adaptada)",tipo:"ME",
+   e:"Possuem critérios diferenciados para a concessão de aposentadoria pelo RPPS, de acordo com a Constituição, os servidores nas situações abaixo, EXCETO:",
+   opts:{a:"professores com tempo de efetivo exercício exclusivamente no ensino infantil, fundamental e médio.",
+         b:"portadores de deficiência.",
+         c:"Policiais militares.",
+         d:"servidores cujas atividades sejam exercidas sob condições que prejudiquem a saúde ou a integridade física.",
+         e:"membros do Poder Executivo, Legislativo e Judiciário."},
+   g:"e",
+   c:"A CF/88 (§§ 4º-A, 4º-B, 4º-C e 5º do art. 40) prevê critérios diferenciados para: deficientes (§4º-A), agentes penitenciários/socioeducativos/policiais (§4º-B), exposição a agentes nocivos (§4º-C) e professores de educação infantil/fundamental/médio (§5º). <strong>Membros dos Poderes não possuem esse privilégio</strong> — gabarito E."},
+  {id:6,banca:"FCC",cargo:"Analista de Controle Externo – TCE-CE – 2015 (Adaptada)",tipo:"ME",
+   e:"NÃO se constitui em exceção prevista na CF/88 para vedação da adoção de requisitos e critérios diferenciados para concessão de aposentadoria no RPPS, o caso de servidores",
+   opts:{a:"portadores de deficiência.",
+         b:"agentes federais penitenciários.",
+         c:"cujas atividades sejam exercidas sob condições especiais que prejudiquem a saúde.",
+         d:"cujas atividades sejam exercidas sob condições especiais que prejudiquem a integridade física.",
+         e:"que exerçam funções de magistério em nível superior."},
+   g:"e",
+   c:"<span class='arm'>⚠️ ARMADILHA CLÁSSICA do professor:</span> o §5º do art. 40 da CF só prevê redução de idade (5 anos) para professores do <strong>ensino infantil, fundamental e médio</strong>. Magistério em <em>nível superior</em> NÃO tem previsão de critério diferenciado. A e B: previstos nos §4º-A e B. C e D: previstos no §4º-C."},
+  {id:7,banca:"CESPE",cargo:"Analista Judiciário – STJ – 2018",tipo:"CE",
+   e:"Aos abrangidos pelos regimes próprios de previdência social é vedada a adoção de requisitos e critérios diferenciados para a concessão de aposentadoria, ressalvados somente os servidores públicos deficientes.",
+   g:"E",
+   c:"<span class='arm'>⚠️</span> 'Ressalvados somente os deficientes' está errado — há outras ressalvas: policiais/agentes penitenciários (§4º-B), expostos a agentes nocivos (§4º-C) e professores de educação infantil/fundamental/médio (§5º). Sempre que a banca diz 'somente' numa lista de exceções, suspeite."},
+  {id:8,banca:"CESPE",cargo:"Auditor de Contas Públicas – TCE-PB – 2018 (Adaptada)",tipo:"CE",
+   e:"É vedada, sem ressalva, a adoção de requisitos e critérios diferenciados para a concessão de aposentadorias no RPPS.",
+   g:"E",
+   c:"Existem quatro grupos de ressalvas na CF/88 (art. 40, §§ 4º-A, 4º-B, 4º-C e 5º): servidores deficientes, policiais/agentes penitenciários, exposição a agentes nocivos e professores de educação básica. A afirmação 'sem ressalva' é absolutamente errada."},
+  {id:9,banca:"PGE-GO",cargo:"Procurador do Estado – 2013 (Adaptada)",tipo:"CE",
+   e:"Os proventos de aposentadoria e as pensões, por ocasião de sua concessão, não poderão exceder a remuneração do respectivo servidor, no cargo efetivo em que se deu a aposentadoria ou que serviu de referência para a concessão da pensão.",
+   g:"E",
+   c:"<span class='arm'>⚠️ ARMADILHA do teto:</span> Após as reformas, o limite dos proventos/pensões do RPPS é o <strong>teto do RGPS</strong> (art. 40, §2º da CF), e não mais a remuneração do servidor. A questão usa a regra antiga (anterior à EC 20/98). Regra atual: mínimo = salário mínimo; máximo = teto do RGPS."},
+  {id:10,banca:"CESPE",cargo:"Juiz Federal – TRF 2ª Região – 2009 (Adaptada)",tipo:"CE",
+   e:"Ressalvadas as exceções aplicáveis aos professores que comprovem tempo de efetivo exercício exclusivamente em funções de magistério na educação superior, os proventos de aposentadoria e as pensões, quando da concessão, não podem exceder a remuneração no cargo efetivo em que se deu a aposentadoria.",
+   g:"E",
+   c:"Dois erros: (1) <span class='arm'>magistério em nível superior NÃO tem exceção</span> na CF — o §5º art. 40 vale apenas para educação infantil, fundamental e médio; (2) o teto dos proventos não é a remuneração do servidor, mas o teto do RGPS."},
+  {id:11,banca:"MOVENS",cargo:"Delegado de Polícia – PC-PA – 2009 (Adaptada)",tipo:"CE",
+   e:"Os proventos de aposentadoria e as pensões, por ocasião de sua concessão, poderão exceder a remuneração do respectivo servidor, no cargo efetivo em que se deu a aposentadoria ou que serviu de referência para a concessão da pensão, conforme previsão constitucional.",
+   g:"E",
+   c:"Os proventos e pensões <strong>não podem exceder</strong> o teto máximo do RGPS (art. 40, §2º CF). A questão afirma que poderiam exceder a remuneração — erro duplo: (a) o teto é do RGPS, não a remuneração; (b) jamais podem exceder esse teto."},
+  {id:12,banca:"CESPE",cargo:"Auditor de Contas Públicas – TCE-PB – 2018 (Adaptada)",tipo:"CE",
+   e:"É vedada a percepção de mais de uma aposentadoria por RPPS, ressalvadas as aposentadorias oriundas de cargos acumuláveis.",
+   g:"C",
+   c:"Art. 40, §6º da CF/88: vedada a percepção de mais de uma aposentadoria à conta do RPPS, <strong>ressalvadas as decorrentes de cargos acumuláveis</strong> constitucionalmente. <span class='arm'>⚠️</span> Distinção: proibido acumular no mesmo RPPS (exceto cargos acumuláveis); permitido acumular RPPS + RGPS quando há contribuição para ambos."},
+  {id:13,banca:"Inédita",cargo:"Questão Inédita – 2019",tipo:"CE",
+   e:"É vedada a acumulação de aposentadorias em regimes distintos (uma no RGPS e outra no RPPS), quando sejam computados os tempos de serviços realizados em atividades concomitantes em cada sistema previdenciário, com a respectiva contribuição para cada regime.",
+   g:"E",
+   c:"<strong>Não existe proibição</strong> à acumulação de aposentadorias em regimes distintos (RPPS + RGPS), desde que o servidor tenha contribuído para ambos com base em atividades concomitantes. O que é vedado é acumular duas aposentadorias no mesmo regime (RPPS ou RGPS), salvo cargos acumuláveis."},
+  {id:14,banca:"CESPE",cargo:"Advogado da União – 2015",tipo:"CE",
+   e:"Conforme a jurisprudência do STF, a irredutibilidade do valor dos benefícios é garantida constitucionalmente, seja para assegurar o valor nominal, seja para assegurar o valor real dos benefícios, independentemente dos critérios de reajuste fixados pelo legislador ordinário.",
+   g:"E",
+   c:"<span class='arm'>⚠️ ARMADILHA da irredutibilidade:</span> Segundo o STF, o art. 194, §único, IV da CF garante apenas o <strong>valor NOMINAL</strong> dos benefícios da Seguridade Social. O valor <em>real</em> dos benefícios previdenciários é garantido pelo art. 201, §4º da CF — mas <em>conforme critérios definidos em lei</em> (não independentemente do legislador)."},
+  {id:15,banca:"Inédita",cargo:"Adaptada / Inédita",tipo:"CE",
+   e:"Compete ao Poder Público, nos termos da lei, organizar a seguridade social com base no seguinte objetivo: irredutibilidade do valor dos benefícios.",
+   g:"C",
+   c:"Art. 194, §único, IV da CF/88 — literalidade correta. <span class='arm'>⚠️</span> Irredutibilidade é dos <strong>BENEFÍCIOS</strong> (não dos serviços). Serviços não têm caráter pecuniário, portanto não há como haver redução de valor. A banca frequentemente troca 'benefícios' por 'serviços'."},
+  {id:16,banca:"Inédita",cargo:"Adaptada / Inédita",tipo:"CE",
+   e:"Podemos afirmar, com relação aos objetivos constitucionais da Seguridade Social, a irredutibilidade do valor dos serviços.",
+   g:"E",
+   c:"O art. 194, §único, IV da CF prevê irredutibilidade do valor dos <strong>benefícios</strong>, não dos serviços. Serviços previdenciários não têm valor pecuniário definido, portanto a irredutibilidade não se aplica a eles. Banca recorrente: substituir 'benefícios' por 'serviços'."},
+  {id:17,banca:"Inédita",cargo:"Adaptada / Inédita",tipo:"CE",
+   e:"Segundo a organização e princípios constitucionais da Seguridade Social, podemos afirmar que o valor dos benefícios pode ser diminuído gradativamente.",
+   g:"E",
+   c:"A CF/88 (art. 194, §único, IV) veda qualquer redução no valor dos benefícios — inclusive gradativa. O princípio da <strong>irredutibilidade</strong> é absoluto quanto ao valor nominal: qualquer redução, mesmo parcial ou gradual, viola a Constituição."},
+  {id:18,banca:"Inédita",cargo:"Adaptada / Inédita",tipo:"CE",
+   e:"Quanto aos princípios constitucionais da Seguridade Social, é correto afirmar que o princípio da irredutibilidade do valor dos benefícios, segundo a orientação do Supremo Tribunal Federal, significa a irredutibilidade do valor real, protegendo-os do fenômeno inflacionário.",
+   g:"E",
+   c:"<span class='arm'>⚠️ ARMADILHA nominal × real:</span> O STF entende que o art. 194, §único, IV da CF garante apenas o <strong>valor NOMINAL</strong> — não o valor real. A proteção do valor real dos benefícios <em>previdenciários</em> decorre do art. 201, §4º da CF. Para Assistência Social e Saúde: apenas o nominal é protegido."}
+];
+
+let pool=[],cur=0,ans={},nC=0,nE=0;
+let mode='all',shuf=false;
+let errs=new Set();
+
+function loadE(){try{const s=localStorage.getItem(KEY);if(s)errs=new Set(JSON.parse(s))}catch(e){}}
+function saveE(){try{localStorage.setItem(KEY,JSON.stringify([...errs]))}catch(e){}}
+function init(){loadE();apply();}
+
+function apply(){
+  ans={};nC=0;nE=0;cur=0;
+  let base=Q;
+  if(mode==='cespe') base=Q.filter(q=>q.banca==='CESPE');
+  else if(mode==='ce') base=Q.filter(q=>q.tipo==='CE');
+  else if(mode==='errors') base=Q.filter(q=>errs.has(q.id));
+  if(!base.length){showEmpty();return;}
+  pool=[...base];
+  if(shuf){for(let i=pool.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[pool[i],pool[j]]=[pool[j],pool[i]];}}
+  updStats();render();
+}
+
+function setFilter(m){
+  mode=m;
+  ['All','Cespe','CE','Errors'].forEach(x=>{
+    const el=document.getElementById('b'+x);
+    if(el)el.classList.toggle('on',m===x.toLowerCase());
+  });
+  apply();
+}
+
+function toggleShuffle(){
+  shuf=!shuf;
+  const b=document.getElementById('bShuffle');
+  b.textContent=shuf?'🔀 Embaralhado ✓':'🔀 Embaralhar';
+  b.classList.toggle('on',shuf);
+  apply();
+}
+
+function resetAll(){errs.clear();saveE();apply();}
+
+function updStats(){
+  const tot=pool.length,done=nC+nE,pct=tot?Math.round(done/tot*100):0;
+  document.getElementById('pbFill').style.width=pct+'%';
+  document.getElementById('pbLabel').textContent=`${done} de ${tot} respondidas`;
+  document.getElementById('hdCount').textContent=`${Math.min(cur+1,tot)}/${tot}`;
+  document.getElementById('sC').textContent=nC+' acerto'+(nC!==1?'s':'');
+  document.getElementById('sE').textContent=nE+' erro'+(nE!==1?'s':'');
+  document.getElementById('sR').textContent=(tot-done)+' restante'+(tot-done!==1?'s':'');
+}
+
+function badgeCls(b){
+  if(b==='CESPE')return'b-cespe';
+  if(b==='FCC')return'b-fcc';
+  if(b==='Inédita')return'b-inedita';
+  if(b==='COSEAC')return'b-outro';
+  return'b-me';
+}
+
+function render(){
+  if(cur>=pool.length){showResults();return;}
+  const q=pool[cur],done=ans[cur]!==undefined,ua=ans[cur];
+  const isOk=done&&ua===q.g;
+  const gLabel=q.tipo==='CE'?(q.g==='C'?'CERTO':'ERRADO'):'Alternativa '+q.g.toUpperCase();
+
+  let inputHTML='';
+  if(q.tipo==='CE'){
+    inputHTML=`<div class="ans-row">
+      <button class="ans-btn ${ceClass('C',q,ua,done)}" onclick="answerCE('C')" ${done?'disabled':''}>✓ CERTO</button>
+      <button class="ans-btn ${ceClass('E',q,ua,done)}" onclick="answerCE('E')" ${done?'disabled':''}>✗ ERRADO</button>
+    </div>`;
+  } else {
+    const letters=['a','b','c','d','e'];
+    inputHTML='<div class="opts">'+letters.map(l=>`
+      <button class="opt-btn ${meClass(l,q,ua,done)}" onclick="answerME('${l}')" ${done?'disabled':''}>
+        <span class="opt-lbl">${l.toUpperCase()})</span><span>${q.opts[l]}</span>
+      </button>`).join('')+'</div>';
+  }
+
+  document.getElementById('area').innerHTML=`
+  <div class="cw">
+    <div class="card" id="card">
+      <div class="stamp-ov" id="stamp">
+        <div class="stamp ${isOk?'stc':'ste'}">${isOk?'CERTO':'ERRADO'}</div>
+      </div>
+      <div class="card-meta">
+        <span class="badge b-num">Q${cur+1}</span>
+        <span class="badge ${badgeCls(q.banca)}">${q.banca}</span>
+        <span class="badge ${q.tipo==='ME'?'b-me':'b-cespe'}">${q.tipo==='ME'?'Múltipla':'C/E'}</span>
+        <span class="card-cargo">${q.cargo}</span>
+      </div>
+      <div class="card-body"><div class="enunciado">${q.e}</div></div>
+      ${inputHTML}
+      ${done?`
+      <div class="fb show ${isOk?'ok':'ng'}">
+        <div class="fb-hd">${isOk?'✅ Correto!':'❌ Errado!'} Gabarito: <strong>${gLabel}</strong></div>
+        <div class="fb-bd">${q.c}</div>
+      </div>
+      <div class="nav-row">
+        ${cur>0?`<button class="nav-btn" onclick="go(${cur-1})">← Anterior</button>`:'<div></div>'}
+        ${cur<pool.length-1
+          ?`<button class="nav-btn nx" onclick="go(${cur+1})">Próxima →</button>`
+          :`<button class="nav-btn nx" onclick="showResults()">🏁 Ver resultado</button>`}
+      </div>`:''}
+    </div>
+  </div>`;
+
+  if(done)setTimeout(()=>{const s=document.getElementById('stamp');if(s)s.classList.add('show');},60);
+  updStats();
+}
+
+function ceClass(opt,q,ua,done){
+  if(!done)return opt==='C'?'cv':'ce';
+  if(opt===ua)return ua===q.g?'sel-ok':'sel-ng';
+  if(opt===q.g)return'rev-ok';
+  return opt==='C'?'cv':'ce';
+}
+function meClass(l,q,ua,done){
+  if(!done)return'';
+  if(l===ua)return l===q.g?'sel-ok':'sel-ng';
+  if(l===q.g)return'rev-ok';
+  return'';
+}
+
+function answerCE(ch){
+  if(ans[cur]!==undefined)return;
+  const q=pool[cur];ans[cur]=ch;
+  if(ch===q.g)nC++;else{nE++;errs.add(q.id);saveE();}
+  render();
+  setTimeout(()=>{const s=document.getElementById('stamp');if(s)s.classList.add('show');},90);
+}
+function answerME(l){
+  if(ans[cur]!==undefined)return;
+  const q=pool[cur];ans[cur]=l;
+  if(l===q.g)nC++;else{nE++;errs.add(q.id);saveE();}
+  render();
+  setTimeout(()=>{const s=document.getElementById('stamp');if(s)s.classList.add('show');},90);
+}
+function go(i){cur=i;render();}
+
+function showEmpty(){
+  document.getElementById('area').innerHTML=`
+  <div class="empty">
+    <div class="ico">📭</div>
+    <h3>Nenhuma questão aqui</h3>
+    <p>${mode==='errors'?'Sem erros registrados nesta aula. Parabéns! 🎉':'Nenhuma questão encontrada com este filtro.'}</p>
+  </div>`;
+}
+function showResults(){
+  const tot=pool.length,pct=tot?Math.round(nC/tot*100):0;
+  const ico=pct>=80?'🏆':pct>=60?'💪':'📚';
+  document.getElementById('area').innerHTML=`
+  <div class="results">
+    <div class="r-ico">${ico}</div>
+    <h2>Resultado Final</h2>
+    <p style="color:var(--muted);font-size:13.5px">Aula 15 — RPPS</p>
+    <div class="r-score">${pct}%</div>
+    <div class="r-grid">
+      <div class="r-stat g"><div class="n">${nC}</div><div class="lbl">Acertos</div></div>
+      <div class="r-stat r"><div class="n">${nE}</div><div class="lbl">Erros</div></div>
+      <div class="r-stat"><div class="n">${tot}</div><div class="lbl">Total</div></div>
+      <div class="r-stat"><div class="n">${errs.size}</div><div class="lbl">No caderno</div></div>
+    </div>
+    ${nE>0?`<button class="r-btn main" onclick="setFilter('errors')">Refazer só os erros (${nE})</button>`:''}
+    <button class="r-btn sec" onclick="resetAll()">↺ Recomeçar do zero</button>
+  </div>`;
+  document.getElementById('pbFill').style.width='100%';
+  document.getElementById('pbLabel').textContent=`${tot} de ${tot} respondidas`;
+  updStats();
+}
+init();
+</script>
+</body>
+</html>
