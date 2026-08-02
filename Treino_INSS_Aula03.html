@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#085041">
+<title>Treino INSS · Aula 03 — Contribuições das Empresas</title>
+<style>
+  :root{
+    --paper:#F4F2EA; --card:#FFFFFF; --ink:#26251F; --ink-2:#5C5A50;
+    --teal:#085041; --teal-2:#0F6E56; --teal-soft:#E1F5EE;
+    --red:#A32222; --red-soft:#FCEBEB;
+    --amber:#B45309; --amber-soft:#FAEEDA;
+    --line:#DAD7CB; --radius:14px;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html{font-size:16px}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    background:var(--paper); color:var(--ink); min-height:100vh;
+    min-height:100dvh; display:flex; flex-direction:column;
+  }
+  header{
+    background:var(--teal); color:#fff; padding:14px 18px calc(14px);
+    padding-top:calc(14px + env(safe-area-inset-top));
+    display:flex; align-items:baseline; justify-content:space-between; gap:10px;
+  }
+  header h1{font-size:1.02rem; font-weight:700; letter-spacing:.01em}
+  header .sub{font-size:.72rem; opacity:.85; font-weight:500; letter-spacing:.08em; text-transform:uppercase}
+  main{flex:1; width:100%; max-width:680px; margin:0 auto; padding:16px 14px 90px}
+
+  /* ---------- telas ---------- */
+  .tela{display:none}
+  .tela.ativa{display:block; animation:entra .25s ease}
+  @keyframes entra{from{opacity:0; transform:translateY(6px)}to{opacity:1; transform:none}}
+  @media (prefers-reduced-motion: reduce){ .tela.ativa{animation:none} .carimbo{animation:none!important} }
+
+  /* ---------- início ---------- */
+  .painel{background:var(--card); border:1px solid var(--line); border-radius:var(--radius); padding:18px 16px; margin-bottom:14px}
+  .painel h2{font-size:1.05rem; color:var(--teal); margin-bottom:6px}
+  .painel p{font-size:.9rem; color:var(--ink-2); line-height:1.5}
+  .stats-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-top:12px}
+  .stat{background:var(--teal-soft); border-radius:10px; padding:10px 8px; text-align:center}
+  .stat b{display:block; font-size:1.35rem; color:var(--teal)}
+  .stat span{font-size:.68rem; color:var(--teal-2); letter-spacing:.05em; text-transform:uppercase; font-weight:600}
+  .opcoes-treino{display:flex; flex-direction:column; gap:10px; margin-top:14px}
+  .btn{
+    font:inherit; border:0; cursor:pointer; border-radius:12px; padding:14px 16px;
+    font-weight:700; font-size:.95rem; width:100%; text-align:left;
+    display:flex; justify-content:space-between; align-items:center; gap:8px;
+    transition:transform .08s ease, filter .12s ease;
+  }
+  .btn:active{transform:scale(.985)}
+  .btn:focus-visible{outline:3px solid var(--amber); outline-offset:2px}
+  .btn-primario{background:var(--teal); color:#fff}
+  .btn-suave{background:var(--card); color:var(--teal); border:1.5px solid var(--teal-2)}
+  .btn-ambar{background:var(--amber-soft); color:var(--amber); border:1.5px solid var(--amber)}
+  .btn small{font-weight:500; font-size:.75rem; opacity:.8}
+  .btn[disabled]{opacity:.4; cursor:default}
+  .linha-toggle{display:flex; align-items:center; justify-content:space-between; padding:10px 2px; font-size:.9rem}
+  .chave{position:relative; width:48px; height:28px; border-radius:14px; background:var(--line); border:0; cursor:pointer; transition:background .15s}
+  .chave::after{content:""; position:absolute; top:3px; left:3px; width:22px; height:22px; border-radius:50%; background:#fff; transition:left .15s; box-shadow:0 1px 3px rgba(0,0,0,.25)}
+  .chave[aria-checked="true"]{background:var(--teal-2)}
+  .chave[aria-checked="true"]::after{left:23px}
+
+  /* ---------- questão ---------- */
+  .progresso{display:flex; align-items:center; gap:10px; margin-bottom:12px; font-size:.78rem; color:var(--ink-2); font-weight:600}
+  .barra{flex:1; height:8px; background:var(--line); border-radius:4px; overflow:hidden}
+  .barra i{display:block; height:100%; background:var(--teal-2); border-radius:4px; transition:width .25s ease}
+  .placar{white-space:nowrap}
+  .placar .ok{color:var(--teal-2)} .placar .no{color:var(--red)}
+
+  .q-card{background:var(--card); border:1px solid var(--line); border-radius:var(--radius); padding:16px; position:relative; overflow:hidden}
+  .q-banca{display:inline-block; background:#EEEDFE; color:#3C3489; font-size:.68rem; font-weight:700; letter-spacing:.04em; padding:4px 10px; border-radius:7px; margin-bottom:10px; max-width:100%}
+  .q-enun{font-size:.98rem; line-height:1.6}
+  .q-opts{list-style:none; margin-top:14px; display:flex; flex-direction:column; gap:8px}
+  .q-opts button{
+    font:inherit; width:100%; text-align:left; background:var(--paper); border:1.5px solid var(--line);
+    border-radius:10px; padding:11px 12px; font-size:.9rem; line-height:1.45; cursor:pointer; color:var(--ink);
+    display:flex; gap:8px; transition:border-color .12s, background .12s;
+  }
+  .q-opts button:focus-visible{outline:3px solid var(--amber); outline-offset:1px}
+  .q-opts button b{color:var(--teal-2); flex-shrink:0}
+  .q-opts button.certa{background:var(--teal-soft); border-color:var(--teal-2)}
+  .q-opts button.errada{background:var(--red-soft); border-color:var(--red)}
+  .ce-botoes{display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:16px}
+  .ce-botoes button{
+    font:inherit; border:2px solid; border-radius:12px; padding:16px 10px; font-size:1.05rem; font-weight:800;
+    letter-spacing:.06em; cursor:pointer; background:var(--card); transition:transform .08s;
+  }
+  .ce-botoes button:active{transform:scale(.97)}
+  .ce-botoes button:focus-visible{outline:3px solid var(--amber); outline-offset:2px}
+  .ce-certo{color:var(--teal-2); border-color:var(--teal-2)}
+  .ce-errado{color:var(--red); border-color:var(--red)}
+
+  /* carimbo — assinatura do app */
+  .carimbo{
+    position:absolute; top:14px; right:-8px; transform:rotate(12deg) scale(1);
+    font-weight:900; font-size:1.5rem; letter-spacing:.12em; padding:6px 18px;
+    border:4px solid; border-radius:8px; opacity:0; pointer-events:none;
+    text-transform:uppercase; background:rgba(255,255,255,.88);
+    animation:bate .35s cubic-bezier(.2,1.6,.4,1) forwards;
+  }
+  @keyframes bate{0%{opacity:0; transform:rotate(20deg) scale(2)}100%{opacity:.95; transform:rotate(12deg) scale(1)}}
+  .carimbo.ok{color:var(--teal-2); border-color:var(--teal-2)}
+  .carimbo.no{color:var(--red); border-color:var(--red)}
+
+  .feedback{margin-top:14px; display:none}
+  .feedback.mostra{display:block; animation:entra .2s ease}
+  .gabarito{font-weight:800; font-size:.95rem; padding:10px 12px; border-radius:10px; margin-bottom:10px}
+  .gabarito.ok{background:var(--teal-soft); color:var(--teal)}
+  .gabarito.no{background:var(--red-soft); color:var(--red)}
+  .comentario{background:var(--paper); border-left:4px solid var(--amber); border-radius:0 10px 10px 0; padding:12px 12px; font-size:.87rem; line-height:1.6; color:var(--ink-2); max-height:280px; overflow-y:auto}
+  .comentario b{color:var(--amber)}
+
+  .rodape-fixo{
+    position:fixed; left:0; right:0; bottom:0; padding:10px 14px calc(10px + env(safe-area-inset-bottom));
+    background:linear-gradient(to top, var(--paper) 70%, transparent); display:none; justify-content:center;
+  }
+  .rodape-fixo.mostra{display:flex}
+  .rodape-fixo button{max-width:680px}
+
+  /* ---------- resultado ---------- */
+  .resultado-nota{font-size:3rem; font-weight:900; color:var(--teal); text-align:center; margin:6px 0}
+  .resultado-frase{text-align:center; color:var(--ink-2); font-size:.92rem; margin-bottom:14px}
+  .lista-erradas{margin-top:10px; font-size:.85rem; color:var(--ink-2); line-height:1.7}
+  .lista-erradas b{color:var(--red)}
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <h1>Treino INSS · Aula 03</h1>
+    <div class="sub">CPRB · MEI · Simples · doméstico</div>
+  </div>
+  <div class="sub" id="hdr-contador"></div>
+</header>
+<main>
+
+  <!-- TELA INÍCIO -->
+  <section class="tela ativa" id="tela-inicio" aria-label="Início">
+    <div class="painel">
+      <h2>Bora treinar, Marina? 💚</h2>
+      <p>Todas as questões da apostila 03 do prof. Paulo Júnior, com os comentários dele na palma da mão. Alíquotas diferenciadas, CPRB, MEI, Simples Nacional, entidades beneficentes, doméstico e receitas de outras fontes!</p>
+      <div class="stats-grid">
+        <div class="stat"><b id="st-total">0</b><span>questões</span></div>
+        <div class="stat"><b id="st-ce">0</b><span>certo/errado</span></div>
+        <div class="stat"><b id="st-me">0</b><span>múltipla escolha</span></div>
+      </div>
+    </div>
+    <div class="painel">
+      <div class="linha-toggle">
+        <span>Embaralhar questões</span>
+        <button class="chave" id="tg-embaralhar" role="switch" aria-checked="true" aria-label="Embaralhar questões"></button>
+      </div>
+      <div class="linha-toggle">
+        <span>Apenas Certo/Errado (estilo CESPE)</span>
+        <button class="chave" id="tg-so-ce" role="switch" aria-checked="false" aria-label="Apenas questões Certo ou Errado"></button>
+      </div>
+    </div>
+    <div class="opcoes-treino">
+      <button class="btn btn-primario" id="bt-iniciar">Começar treino completo <span>▶</span></button>
+      <button class="btn btn-ambar" id="bt-erradas">Refazer só as que errei <small id="qt-erradas"></small></button>
+      <button class="btn btn-suave" id="bt-zerar">Zerar histórico de acertos</button>
+    </div>
+  </section>
+
+  <!-- TELA QUESTÃO -->
+  <section class="tela" id="tela-questao" aria-label="Questão">
+    <div class="progresso">
+      <span id="pg-num"></span>
+      <div class="barra"><i id="pg-fill" style="width:0%"></i></div>
+      <span class="placar"><span class="ok" id="pl-ok">0</span> · <span class="no" id="pl-no">0</span></span>
+    </div>
+    <div class="q-card" id="q-card">
+      <span class="q-banca" id="q-banca"></span>
+      <p class="q-enun" id="q-enun"></p>
+      <ul class="q-opts" id="q-opts"></ul>
+      <div class="ce-botoes" id="q-ce" style="display:none">
+        <button class="ce-certo" data-r="C">CERTO</button>
+        <button class="ce-errado" data-r="E">ERRADO</button>
+      </div>
+      <div class="feedback" id="q-fb">
+        <div class="gabarito" id="q-gab"></div>
+        <div class="comentario" id="q-com"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TELA RESULTADO -->
+  <section class="tela" id="tela-fim" aria-label="Resultado">
+    <div class="painel">
+      <h2 style="text-align:center">Fim do treino!</h2>
+      <div class="resultado-nota" id="fim-nota"></div>
+      <p class="resultado-frase" id="fim-frase"></p>
+      <div class="stats-grid">
+        <div class="stat"><b id="fim-ok">0</b><span>acertos</span></div>
+        <div class="stat"><b id="fim-no">0</b><span>erros</span></div>
+        <div class="stat"><b id="fim-pct">0%</b><span>aproveitamento</span></div>
+      </div>
+      <div class="lista-erradas" id="fim-erradas"></div>
+    </div>
+    <div class="opcoes-treino">
+      <button class="btn btn-ambar" id="bt-refazer-erradas">Refazer as que errei agora</button>
+      <button class="btn btn-primario" id="bt-voltar">Voltar ao início</button>
+    </div>
+  </section>
+
+</main>
+<div class="rodape-fixo" id="rodape">
+  <button class="btn btn-primario" id="bt-proxima" style="justify-content:center">Próxima questão →</button>
+</div>
+
+<script>
+const QUESTOES = [{"banca":"CEBRASPE - INSS - TÉCNICO DO SEGURO SOCIAL (2022)","enun":"Acerca do conceito previdenciário de empresa e de empregador doméstico e do financiamento da seguridade social, julgue os itens que se seguem. A contribuição empresarial destinada à seguridade social de associação desportiva que mantém equipe de futebol profissional corresponde a 20% da receita bruta decorrente dos espetáculos desportivos de que participe em todo território nacional, em qualquer modalidade desportiva, inclusive jogos internacionais, e de 5% da receita de qualquer forma de patrocínio, licenciamento de uso de marcas e símbolos, publicidade, propaganda e de transmissão de espetáculos desportivos.","opts":null,"gab":"E","tipo":"CE","com":"Assertiva incorreta. A contribuição empresarial destinada à seguridade social de associação desportiva que mantém equipe de futebol profissional corresponde a 5% da receita bruta decorrente dos espetáculos desportivos de que participe em todo território nacional (art. 205 do Decreto 3.048/99).","region":"questoes","n":1},{"banca":"CESPE - Técnico do Seguro Social – 2016","enun":"No que se refere à contribuição de empresas e empregadores domésticos para o financiamento da seguridade social, julgue o item subsequente. A contribuição empresarial de associação desportiva que mantenha equipe de futebol profissional distingue-se da contribuição exigida de outras empresas.","opts":null,"gab":"C","tipo":"CE","com":"Para verificar quais são as obrigações em questão, vamos consultar o Art. 22 da Lei 8.212/91. Art. 22. A contribuição a cargo da empresa, destinada à Seguridade Social, além do disposto no art. 23, é de: I - vinte por cento sobre o total das remunerações pagas, devidas ou creditadas a qualquer título, durante o mês, aos segurados empregados e trabalhadores avulsos que lhe prestem serviços, destinadas a retribuir o trabalho, qualquer que seja a sua forma, inclusive as gorjetas, os ganhos habituais sob a forma de utilidades e os adiantamentos decorrentes de reajuste salarial, quer pelos serviços efetivamente prestados, quer pelo tempo à disposição do empregador ou tomador de serviços, nos termos da lei ou do contrato ou, ainda, de convenção ou acordo coletivo de trabalho ou sentença normativa. II - para o financiamento do benefício previsto nos arts. 57 e 58 da Lei nº 8.213, de 24 de julho de 1991, e daqueles concedidos em razão do grau de incidência de incapacidade laborativa decorrente dos riscos ambientais do trabalho, sobre o total das remunerações pagas ou creditadas, no decorrer do mês, aos segurados empregados e trabalhadores avulsos: a) 1% (um por cento) para as empresas em cuja atividade preponderante o risco de acidentes do trabalho seja considerado leve; b) 2% (dois por cento) para as empresas em cuja atividade preponderante esse risco seja considerado médio; c) 3% (três por cento) para as empresas em cuja atividade preponderante esse risco seja considerado grave. III - vinte por cento sobre o total das remunerações pagas ou creditadas a qualquer título, no decorrer do mês, aos segurados contribuintes individuais que lhe prestem serviços; Sobre a contribuição das associações desportivas consultaremos o §6º do mesmo artigo: Art. 22. [...] § 6º A contribuição empresarial da associação desportiva que mantém equipe de futebol profissional destinada à Seguridade Social, em substituição à prevista nos incisos I e II deste artigo, corresponde a cinco por cento da receita bruta, decorrente dos espetáculos desportivos de que participem em todo território nacional em qualquer modalidade desportiva, inclusive jogos internacionais, e de qualquer forma de patrocínio, licenciamento de uso de marcas e símbolos, publicidade, propaganda e de transmissão de espetáculos desportivos. (Destaques Nossos). Podemos concluir que a afirmativa está correta, pois as associações desportivas não pagam a cota patronal e nem o GILRAT sobre o total das remunerações dos seus empre","region":"questoes","n":2},{"banca":"Questão Inédita - Direito Previdenciário - 2024","enun":"A respeito da base de cálculo e contribuintes das contribuições sociais é incorreto afirmar que a Receita bruta decorrente dos espetáculos desportivos de que participem em todo território nacional é base de cálculo das contribuições do PRODUTOR RURAL PESSOA JURÍDICA.","opts":null,"gab":"C","tipo":"CE","com":"Assertiva correta. A contribuição devida pelo Produtor Rural Pessoa Jurídica, em substituição à prevista nos incisos I e II do art. 22 da Lei no 8.212, de 24 de julho de 1991, nos termos do art. 25 da Lei nº 8.870/94, passa a ser a seguinte: I – 1,7% da receita bruta proveniente da comercialização de sua produção; II – 0,1% da receita bruta proveniente da comercialização de sua produção, para o financiamento da complementação das prestações por acidente de trabalho. Por sua vez, a contribuição empresarial da Associação Desportiva que Mantém Equipe de Futebol Profissional, destinada à Seguridade Social, em substituição às previstas nos incisos I e II do art. 22 da Lei nº 8.212/91, é de 5% da recita bruta decorrente de: - espetáculos desportivos de que participem em todo território nacional em qualquer modalidade desportiva, - inclusive jogos internacionais; - patrocínio; - licenciamento de uso de marcas e símbolos; - publicidade; - propaganda ; - transmissão de espetáculos desportivos. Diante do exposto, podemos concluir que o enunciado da presente questão está correto, pois ele dispõe que NÃO se pode afirmar que a Receita bruta decorrente dos espetáculos desportivos de 16 127 que participem em todo território nacional é base de cálculo das contribuições Produtor Rural Pessoa Jurídica. Realmente não se pode fazer tal afirmação, pois a base de cálculo do Produtor Rural Pessoa Jurídica é a receita bruta proveniente da comercialização de sua produção rural. Por outro lado, a receita bruta decorrente dos espetáculos desportivos de que participem em todo território nacional é base de cálculo apenas das contribuições devidas pelas associações desportivas que mantenham equipe de futebol profissional.","region":"questoes","n":3},{"banca":"CEBRASPE - TCDF - AUDITOR (2023)","enun":"Com relação às contribuições sociais e ao salário-de-contribuição, julgue os itens que se seguem. A alíquota de contribuição previdenciária devida pelo segurado empregado e pelo empregado doméstico para o RGPS é diferente da alíquota devida pela empresa e pelo empregador doméstico.","opts":null,"gab":"C","tipo":"CE","com":"Assertiva correta. A alíquota de contribuição previdenciária devida pelo segurado empregado e pelo empregado doméstico para o RGPS é progressiva, de acordo com o salário de contribuição do segurado (7,5%, 9%, 12% e 14%). A alíquota patronal devida pela empresa é, em regra, 20% da remuneração do segurado empregado, acrescida do RAT ajustado pelo FAP. A alíquota devida pelo empregador doméstico é de 8,8% do salário de contribuição do empregado doméstico a seu serviço. Assim sendo, é verdadeira a afirmação de que a alíquota de contribuição previdenciária devida pelo segurado empregado e pelo empregado doméstico para o RGPS é diferente da alíquota devida pela empresa e pelo empregador doméstico.","region":"questoes","n":4},{"banca":"CESPE - Analista Judiciário - TRT 7ª Região - Judiciári","enun":"(QUESTÃO ADAPTADA). Julgue a afirmativa a seguir: Mônica é empregada doméstica na casa de Jorge, segurado empregado de uma empresa. Como empregador doméstico, Jorge deve realizar o recolhimento da contribuição patronal de 8% sobre o valor registrado na carteira de trabalho de Mônica, para a seguridade social, bem como 0,8% de contribuição social para financiamento do seguro contra acidentes do trabalho.","opts":null,"gab":"C","tipo":"CE","com":"A banca pede que avaliemos se o recolhimento de Jorge, como empregador está correto. Recentemente foi criada a PEC das Domésticas, que é regulamentada pela Lei Complementar 150/2015, alterando totalmente as regras da contribuição do trabalhador doméstico. Para responder essa questão vamos recorrer aos artigos 24 da Lei 8.212/91, e 34 da Lei Complementar 150/2015. Lei 8.212/91: 39 127 Art. 24. A contribuição do empregador doméstico incidente sobre o salário de contribuição do empregado doméstico a seu serviço é de: I - 8% (oito por cento); e II - 0,8% (oito décimos por cento) para o financiamento do seguro contra acidentes de trabalho. Lei Complementar 150/2015: Art. 34. O Simples Doméstico assegurará o recolhimento mensal, mediante documento único de arrecadação, dos seguintes valores: (...) II - 8% (oito por cento) de contribuição patronal previdenciária para a seguridade social, a cargo do empregador doméstico, nos termos do art. 24 da Lei no 8.212, de 24 de julho de 1991; III - 0,8% (oito décimos por cento) de contribuição social para financiamento do seguro contra acidentes do trabalho; IV - 8% (oito por cento) de recolhimento para o FGTS; V - 3,2% (três inteiros e dois décimos por cento), na forma do art. 22 desta Lei; e Como a contribuição do empregador incide sobre o salário de contribuição do empregado doméstico, vamos ver a definição deste na Lei 8.212/91: Lei 8212. Art. 28. Entende-se por salário de contribuição: (...) II - para o empregado doméstico: a remuneração registrada na Carteira de Trabalho e Previdência Social, observadas as normas a serem estabelecidas em regulamento para comprovação do vínculo empregatício e do valor da remuneração; Portanto, a contribuição do empregador doméstico incidirá sobre a remuneração registrada na CTPS do empregado doméstico a seu serviço, limitada ao teto do RGPS. Podemos concluir que a afirmativa é verdadeira.","region":"questoes","n":5},{"banca":"CESPE - Técnico do Seguro Social - 2016","enun":"No que se refere à contribuição de empresas e empregadores domésticos para o financiamento da seguridade social, julgue o item subsequente. A contribuição do empregador doméstico é de 20% e incide sobre o salário-mínimo.","opts":null,"gab":"E","tipo":"CE","com":"40 127 É necessária muita atenção ao responder essa questão, pois ela fala, claramente, sobre a contribuição para financiamento da Seguridade Social (FGTS e reserva indenizatória não fazem parte). Se nos recordarmos apenas da Lei Complementar 150, poderemos errar na resposta, pois ela fala sobre quatro contribuições obrigatórias, quais sejam: 8% de cota patronal; 0,8% de GILRAT; 8% de FGTS; 3,2% de reserva indenizatória para a multa do FGTS. Agora vamos verificar o Art. 24 da Lei 8.212/91 que trata das contribuições do empregador doméstico especificadas pelo examinador. Art. 24. A contribuição do empregador doméstico incidente sobre o salário de contribuição do empregado doméstico a seu serviço é de: I - 8% (oito por cento); e II - 0,8% (oito décimos por cento) para o financiamento do seguro contra acidentes de trabalho. (Destaques Nossos). Como estudado, a contribuição do empregador doméstico é de 8,8% (8% + 0,8%) e deverá incidir sobre o salário de contribuição do empregado doméstico. O conceito detalhado de salário de contribuição será estudado na próxima aula. Portanto a afirmativa está incorreta.","region":"questoes","n":6},{"banca":"CESPE - Técnico do Seguro Social – 2016","enun":"Julgue o item seguinte à luz do Decreto n.º 3.048/1999 e da CF. Situação hipotética: João exerce atividade econômica com finalidade lucrativa na sua própria residência. Recentemente, ele contratou Maria para fazer a limpeza de sua residência, de forma habitual e remunerada, e, inclusive, atender clientes. Assertiva: Nessa situação, João será considerado empregador doméstico com relação aos serviços prestados por Maria.","opts":null,"gab":"E","tipo":"CE","com":"Para conferir se essa assertiva está correta ou não vamos consultar o art. 12 do Decreto 3.048/99. 41 127 Art. 12. Consideram-se: I - empresa - a firma individual ou a sociedade que assume o risco de atividade econômica urbana ou rural, com fins lucrativos ou não, bem como os órgãos e as entidades da administração pública direta, indireta e fundacional; e II - empregador doméstico - aquele que admite a seu serviço, mediante remuneração, sem finalidade lucrativa, empregado doméstico. Parágrafo único. Equiparam-se a empresa, para os efeitos deste Regulamento: I - o contribuinte individual, em relação a segurado que lhe presta serviço; (...) (Destaque Nosso). Podemos concluir que a afirmativa está incorreta, pois Maria não é empregada doméstica, uma vez que João exerce atividade profissional com finalidade lucrativa em sua residência e Maria, além de fazer os trabalhos domésticos, ainda atende aos clientes de João. João, neste caso, se enquadra como contribuinte individual e será equiparado a empresa em relação a Maria. Maria, por sua vez, é considerada segurada empregada (não empregada doméstica), pelas atividades na residência de João.","region":"questoes","n":7},{"banca":"Questão Inédita/Adaptada - Direito Previdenciário - 202","enun":"A arrecadação e recolhimento das contribuições destinadas à Seguridade Social devem ser feitos com a cooperação dos entes e pessoas envolvidos com o fato gerador da contribuição social. A respeito dessa cooperação imposta pela lei, é incorreto afirmar, nos termos da legislação de custeio previdenciário em vigor, que o empregador doméstico está obrigado a arrecadar a contribuição do segurado empregado a seu serviço e a recolhê-la, assim como a parcela a seu cargo.","opts":null,"gab":"E","tipo":"CE","com":"Assertiva incorreta. A responsabilidade pelo recolhimento das contribuições é do empregador doméstico, que ficará com a obrigação de descontar a contribuição do empregado doméstico a seu serviço e recolhê-la, juntamente com a parcela a seu cargo, até o dia 07* do mês seguinte àquele a que as contribuições se referirem, antecipando-se o vencimento para o dia útil imediatamente anterior, quando não houver expediente bancário no dia do vencimento. 42 127 *Obs.: Com a publicação da lei 14.438/22, o prazo de recolhimento da contribuição do empregador doméstico, junto com a contribuição do empregado doméstico a seu serviço (dia 07 do mês seguinte) passou a ser o dia 20 do mês seguinte ao da respectiva competência. Contudo, tal alteração somente produzirá efeitos a partir da data de início da arrecadação por meio da prestação dos serviços digitais de geração de guias. O recolhimento se dará mensalmente, nos termos definidos pela Lei Complementar 150/2015 (Simples Doméstico), mediante um documento único de arrecadação. Assim sendo, como o enunciado dispõe que é incorreta a presente afirmação, trata-se de uma falsa assertiva.","region":"questoes","n":8},{"banca":"Questão Inédita/Adaptada - Direito Previdenciário - 202","enun":"A respeito da base de cálculo e contribuintes das contribuições sociais é incorreto afirmar que o Salário de contribuição dos empregados domésticos a seu serviço é base de cálculo das contribuições dos EMPREGADORES DOMÉSTICOS.","opts":null,"gab":"E","tipo":"CE","com":"Assertiva incorreta. Nos termos do art. 24 da Lei nº 8.212/91, a contribuição do empregador doméstico é de 8,8% do salário de contribuição do empregado doméstico a seu serviço. Desta forma, a base de cálculo da contribuição do empregador doméstico é o “salário de contribuição” do empregado doméstico a seu serviço, respeitando seus limites mínimos e máximos. Assim sendo, como o enunciado dispõe que é incorreta a presente afirmação, trata-se de uma falsa assertiva, tornando incorreta, portanto, a questão em comento.","region":"questoes","n":9},{"banca":"Questão Inédita/Adaptada - Direito Previdenciário - 202","enun":"É correto afirmar que a contribuição do empregador doméstico é de 11% (onze por cento) do salário de contribuição do empregado doméstico a seu serviço.","opts":null,"gab":"E","tipo":"CE","com":"Assertiva incorreta. Nos termos do art. 24 da Lei nº 8.212/91, a contribuição do empregador doméstico é de 8,8% do salário de contribuição do empregado doméstico a seu serviço. Assim sendo, como o enunciado dispõe que tal contribuição será de 11% do salário de contribuição do empregado doméstico a seu serviço, estamos diante de uma assertiva incorreta.","region":"questoes","n":10},{"banca":"Questão Inédita/Adaptada - Direito Previdenciário - 202","enun":"A respeito das normas de custeio que garantem o financiamento do RGPS, é incorreto afirmar que a contribuição do empregador doméstico é de 8,8% do salário de contribuição do empregado doméstico a seu serviço.","opts":null,"gab":"E","tipo":"CE","com":"Assertiva incorreta. Nos termos do art. 24 da Lei nº 8.212/91, a contribuição do empregador doméstico é de 8,8% do salário de contribuição do empregado doméstico a seu serviço. Assim sendo, como o enunciado dispõe que é incorreto afirmar que a contribuição do empregador doméstico é de 8,8% do salário de contribuição do empregado doméstico a seu serviço, estamos diante de uma falsa assertiva.","region":"questoes","n":11},{"banca":"CESPE - Procurador do Ministério Público do Tribunal de","enun":"(QUESTÃO ADAPTADA). Em relação ao custeio da seguridade social, julgue o item a seguir: De acordo com o STF, é legítima a cobrança da COFINS, do PIS e do FINSOCIAL sobre as operações relativas a energia elétrica, serviços de telecomunicações, derivados de petróleo, combustíveis e minerais do país.","opts":null,"gab":"C","tipo":"CE","com":"Questão difícil. Na CF/88 há uma vedação para incidência de impostos sobre operações de energia elétrica e não contribuições. De fato, há inclusive uma súmula do STF (número 659) quanto ao entendimento da Suprema Corte, em relação a constitucionalidade da cobrança de COFINS, PIS. A referida súmula nos diz: SÚMULA Nº 659 47 127 É legítima a cobrança da COFINS, do PIS e do FINSOCIAL sobre as operações relativas a energia elétrica, serviços de telecomunicações, derivados de petróleo, combustíveis e minerais do país. Portanto, assertiva correta.","region":"questoes","n":12},{"banca":"Questão Inédita/Adaptada - Direito Previdenciário - 202","enun":"Em relação às contribuições destinadas à seguridade social e aos regimes de previdência, é correto afirmar que o conceito de receita bruta sujeita à incidência da COFINS envolve apenas aquela decorrente da venda de mercadorias e da prestação de serviços, excluindo-se a soma das receitas oriundas do exercício de outras atividades empresariais.","opts":null,"gab":"E","tipo":"CE","com":"Assertiva incorreta. Nos termos do § 1º do art. 1º da Lei nº 10.833/2003, o total das receitas sujeita à incidência da COFINS compreende a receita bruta da venda de bens e serviços nas operações em conta própria ou alheia e todas as demais receitas auferidas pela pessoa jurídica. Desta forma, como o enunciado afirma que deverão ser excluídas do conceito de receita bruta sujeita à incidência da COFINS a soma das receitas oriundas do exercício de outras atividades empresariais, em desacordo com a base legal citada, estamos diante de uma assertiva incorreta.","region":"questoes","n":13},{"banca":"Questão Inédita/Adaptada - Direito Previdenciário - 202","enun":"À luz da Constituição Federal e da legislação regulamentadora, é incorreto afirmar que os recursos do PIS/PASEP servem, entre outros propósitos, para financiar o seguro-desemprego.","opts":null,"gab":"E","tipo":"CE","com":"Assertiva incorreta. Nos termos do art. 239 da CF/88, a Contribuição para os Programas de Integração Social e de Formação do Patrimônio do Servidor Público - PIS/PASEP, serão destinadas a financiar o programa do seguro-desemprego e o abono anual do PIS, sendo apuradas mensalmente: Pelas pessoas jurídicas de direito privado e as que lhes são equiparadas pela legislação do imposto de renda, inclusive as empresas públicas e as sociedades de economia mista e suas subsidiárias, com base no faturamento do mês; Pelas pessoas jurídicas de direito público interno, com base no valor mensal das receitas correntes arrecadadas e das transferências correntes e de capital recebidas. Desta forma, por expressa disposição constitucional, os recursos do PIS/PASEP servem, entre outros propósitos, para financiar o seguro-desemprego. Assim sendo, como o enunciado dispõe que é incorreta a presente afirmação, trata-se de uma falsa assertiva, tornando incorreta, portanto, a questão em comento.","region":"questoes","n":14},{"banca":"Questão Inédita/Adaptada - Direito Previdenciário - 202","enun":"À luz da Constituição Federal e da legislação regulamentadora, é incorreto afirmar que as pessoas jurídicas de direito privado são contribuintes do PIS/PASEP.","opts":null,"gab":"E","tipo":"CE","com":"51 127 Assertiva incorreta. Nos termos do art. 2º da Lei nº 9.715/98, a Contribuição para os Programas de Integração Social e de Formação do Patrimônio do Servidor Público - PIS/PASEP, serão apuradas mensalmente: Pelas pessoas jurídicas de direito privado e as que lhes são equiparadas pela legislação do imposto de renda, inclusive as empresas públicas e as sociedades de economia mista e suas subsidiárias, com base no faturamento do mês; Pelas pessoas jurídicas de direito público interno, com base no valor mensal das receitas correntes arrecadadas e das transferências correntes e de capital recebidas. Desta forma, vimos que as pessoas jurídicas de direito privado figuram entre os contribuintes do PIS/PASEP. Assim sendo, como o enunciado dispõe que é incorreto afirmar que as pessoas jurídicas de direito privado são contribuintes do PIS/PASEP, trata-se de uma falsa assertiva, tornando incorreta, portanto, a questão em comento. ==e87==","region":"questoes","n":15},{"banca":"FCC - Auditor - TCE-CE - 2015","enun":"Sobre o sistema de custeio e financiamento da Seguridade Social no Brasil, nos termos da doutrina e da legislação pertinente, é INCORRETO afirmar:","opts":[["a","O financiamento direto se dá mediante contribuições e o indireto mediante receitas orçamentárias da União, dos Estados, do Distrito Federal e dos Municípios."],["b","A receita dos concursos de prognósticos faz parte das contribuições sociais que custeiam a Seguridade Social."],["c","Nenhum benefício ou serviço será criado, majorado ou estendido sem a correspondente fonte de custeio total."],["d","Não há previsão para contribuição social para o importador de bens ou serviços do exterior, mas apenas para o exportador."],["e","O pescador artesanal que exerce atividade em regime de economia familiar, sem empregados permanentes, contribuirá mediante aplicação de uma alíquota sobre a comercialização da produção. 54 127"]],"gab":"D","tipo":"ME","com":"Atenção, pois o examinador pediu para ser selecionada a alternativa INCORRETA. Vamos às assertivas: a) O financiamento direto se dá mediante contribuições e o indireto mediante receitas orçamentárias da União, dos Estados, do Distrito Federal e dos Municípios. Vejamos o que nos diz dispositivo legal que rege, de forma geral, a questão do orçamento da Seguridade Social, no âmbito federal. Lei 8.212/91: Art. 11. No âmbito federal, o orçamento da Seguridade Social é composto das seguintes receitas: I - receitas da União; II - receitas das contribuições sociais; III - receitas de outras fontes. Parágrafo único. Constituem contribuições sociais: a) as das empresas, incidentes sobre a remuneração paga ou creditada aos segurados a seu serviço; b) as dos empregadores domésticos; c) as dos trabalhadores, incidentes sobre o seu salário-de-contribuição; d) as das empresas, incidentes sobre faturamento e lucro; e) as incidentes sobre a receita de concursos de prognósticos Apenas lembrando que, Contribuições representam o financiamento direto por parte da União; e Recursos orçamentários provenientes do poder público, representam o financiamento indireto. Ainda temos que nos atentar ao fato de que as contribuições sociais são divididas em previdenciários e não previdenciárias. Por fim, Outras Receitas, são aquelas que não se enquadram em nenhuma das situações mencionadas acima. Assertiva CORRETA. b) A receita dos concursos de prognósticos faz parte das contribuições sociais que custeiam a Seguridade Social. Correto, isso pode ser verificado nos trechos do artigo 11, mencionado no comentário da assertiva anterior. Complementando, no artigo 26 da mesma lei, ainda temos que: Art. 26. (...) § 1º Consideram-se concursos de prognósticos todos e quaisquer concursos de sorteios de números, loterias, apostas, inclusive as realizadas em reuniões hípicas, nos âmbitos federal, estadual, do Distrito Federal e municipal. § 2º Para efeito do disposto neste artigo, entende-se por renda líquida o total da arrecadação, deduzidos os valores destinados ao pagamento de prêmios, de impostos e de despesas com a administração, conforme fixado em lei, que inclusive estipulará o valor dos direitos a serem pagos às entidades desportivas pelo uso de suas denominações e símbolos. 55 127 c) Nenhum benefício ou serviço será criado, majorado ou estendido sem a correspondente fonte de custeio total. Esse conceito deve estar mais do que gravado na sua mente, não é? Afirmativa correta, conforme podemos c","region":"questoes","n":16},{"banca":"Questão Inédita/Adaptada - Direito Previdenciário - 202","enun":"Quanto à diversidade da base de financiamento da Seguridade Social é incorreto afirmar que o importador de bens ou serviços está excluído do custeio da Seguridade Social em razão da inexistência de risco social a ser coberto na atividade que lhe é peculiar, além de não haver base de cálculo contemplada no art. 195, incisos I a IV, da Constituição Federal.","opts":null,"gab":"C","tipo":"CE","com":"CORRETA. De acordo com o art. 195, inciso IV, da CF/88, a Seguridade Social será financiada, dentre outras fontes, por meio de contribuições sociais do importador de bens ou serviços do exterior, ou de quem a lei a ele equiparar. Assim sendo, quando o enunciado dispõe que é incorreto afirmar que o importador de bens ou serviços está excluído do custeio da Seguridade Social, a assertiva torna-se correta, pois o importador não está excluído de tal custeio.","region":"questoes","n":17},{"banca":"Questão Inédita/Adaptada - Direito Previdenciário - 202","enun":"A Seguridade Social será financiada por toda a sociedade, de forma direta e indireta, nos termos da lei, mediante recursos provenientes dos orçamentos da União, dos Estados, do Distrito Federal e dos Municípios. Será financiada também por contribuições sociais, mas não pela contribuição do importador de bens ou serviços do exterior, ou de quem a lei a ele equiparar, independentemente da incidência do imposto de importação que no caso couber.","opts":null,"gab":"E","tipo":"CE","com":"ERRADA. De acordo com o art. 195, inciso IV da CF/88, a Seguridade Social será financiada, dentre outras fontes, por meio de contribuições sociais do importador de bens ou serviços do exterior, ou de quem a lei a ele equiparar. Desta forma, tal contribuição faz parte do financiamento da seguridade social, diferentemente do que afirma o enunciado. Por tal razão, está incorreta a questão.","region":"questoes","n":18},{"banca":"Questão Inédita/Adaptada - Direito Previdenciário - 202","enun":"A respeito das contribuições sociais, é correto afirmar que pode haver incidência de contribuição social sobre a importação de bens do exterior.","opts":null,"gab":"C","tipo":"CE","com":"Assertiva correta. Dispõe a Constituição Federal, em seu art. 195, inciso IV, que: A seguridade social será financiada por toda a sociedade, de forma direta e indireta, nos termos da lei, mediante recursos provenientes dos orçamentos da União, dos Estados, do Distrito Federal e dos Municípios, e das seguintes contribuições sociais: (...) IV - do importador de bens ou serviços do exterior, ou de quem a lei a ele equiparar. Tais contribuições sociais são cobradas mediante Contribuição para os Programas de Integração Social e de Formação do Patrimônio do Servidor Público incidente na Importação de Produtos Estrangeiros ou Serviços - PIS/PASEP-Importação e a Contribuição Social para o Financiamento da Seguridade Social devida pelo Importador de Bens Estrangeiros ou Serviços do Exterior - COFINS-Importação, tendo como fato gerador: - a entrada de bens estrangeiros no território nacional; ou - o pagamento, o crédito, a entrega, o emprego ou a remessa de valores a residentes ou domiciliados no exterior como contraprestação por serviço prestado. A base de cálculo será, em regra: • o valor aduaneiro, quando o fato gerador for a entrada de bens estrangeiros no território nacional; ou • o valor pago, creditado, entregue, empregado ou remetido para o exterior, antes da retenção do imposto de renda, acrescido do Imposto sobre Serviços de qualquer Natureza - ISS e do valor das próprias contribuições, quando o fato gerador for o pagamento, o crédito, a entrega, o emprego ou a remessa de valores a residentes ou domiciliados no exterior como contraprestação por serviço prestado. As contribuições serão calculadas, em regra, mediante aplicação, sobre as bases de cálculo mencionadas, das alíquotas de: Fato Gerador: entrada de bens estrangeiros no território nacional: 2,1% para o PIS/PASEP-Importação; 9,65% para a COFINS-Importação. 58 127 Fato Gerador: o pagamento, o crédito, a entrega, o emprego ou a remessa de valores a residentes ou domiciliados no exterior como contraprestação por serviço prestado: 1,65% para o PIS/PASEP-Importação; 7,6% para a COFINS-Importação. Como o enunciado afirma que pode haver incidência de contribuição social sobre a importação de bens do exterior, verdadeira, portanto, a presente assertiva.","region":"questoes","n":19},{"banca":"Questão Inédita/Adaptada - Direito Previdenciário - 202","enun":"A respeito das contribuições sociais, é correto afirmar que os concursos de prognósticos não estão sujeitos à incidência de contribuições sociais.","opts":null,"gab":"E","tipo":"CE","com":"Assertiva incorreta. Dispõe a Constituição Federal, em seu art. 195, inciso III, que: A seguridade social será financiada por toda a sociedade, de forma direta e indireta, nos termos da lei, mediante recursos provenientes dos orçamentos da União, dos Estados, do Distrito Federal e dos Municípios, e das seguintes contribuições sociais: (...). 60 127 III - sobre a receita de concursos de prognósticos. Como o enunciado afirma que tais contribuições NÃO estão sujeitas à incidência de contribuições sociais, falsa, portanto, a presente assertiva.","region":"questoes","n":20},{"banca":"Questão Inédita/Adaptada - Direito Previdenciário - 202","enun":"A respeito do conceito e financiamento da Seguridade Social, é incorreto afirmar que a contribuição social incidente sobre a receita de concursos de prognósticos refere-se, exclusivamente, às loterias administradas pela Caixa Econômica Federal.","opts":null,"gab":"C","tipo":"CE","com":"Assertiva correta. Dispõe a Constituição Federal, em seu art. 195, inciso III, que: A seguridade social será financiada por toda a sociedade, de forma direta e indireta, nos termos da lei, mediante recursos provenientes dos orçamentos da União, dos Estados, do Distrito Federal e dos Municípios, e das seguintes contribuições sociais: ... III - sobre a receita de concursos de prognósticos. A contribuição social incidente sobre a receita dos concursos de prognósticos decorre de loterias administradas pelo poder público (em regra pela Caixa Econômica Federal), bem como prado de corrida, sorteio de números ou símbolos, administrados pela iniciativa privada. Como o enunciado dispõe que é incorreto afirmar que a contribuição social incidente sobre a receita de concursos de prognósticos refere-se, exclusivamente, às loterias administradas pela Caixa Econômica Federal, verdadeira, portanto, a presente assertiva.","region":"questoes","n":21},{"banca":"Questão Inédita/Adaptada - Direito Previdenciário - 202","enun":"A respeito da seguridade social, é incorreto afirmar que estão incluídas como fontes de recursos para a seguridade social as contribuições sociais da receita de concurso de prognósticos e do importador de bens ou serviços do exterior, ou de quem a lei a ele equiparar. 61 127","opts":null,"gab":"E","tipo":"CE","com":"Assertiva incorreta. Dispõe a Constituição Federal, em seu art. 195, incisos III e IV, que: A seguridade social será financiada por toda a sociedade, de forma direta e indireta, nos termos da lei, mediante recursos provenientes dos orçamentos da União, dos Estados, do Distrito Federal e dos Municípios, e das seguintes contribuições sociais: (...) III - sobre a receita de concursos de prognósticos. IV - do importador de bens ou serviços do exterior, ou de quem a lei a ele equiparar. Por sua vez, as contribuições sociais do importador de bens ou serviços do exterior, ou de quem a lei a ele equiparar, são cobradas mediante Contribuição para os Programas de Integração Social e de Formação do Patrimônio do Servidor Público incidente na Importação de Produtos Estrangeiros ou Serviços - PIS/PASEP-Importação e a Contribuição Social para o Financiamento da Seguridade Social devida pelo Importador de Bens Estrangeiros ou Serviços do Exterior - COFINS-Importação. As contribuições serão calculadas, em regra, mediante aplicação, sobre as bases de cálculo mencionadas, das alíquotas de: Fato Gerador: entrada de bens estrangeiros no território nacional: 2,1% para o PIS/PASEP-Importação; 9,65% para a COFINS-Importação. Fato Gerador: o pagamento, o crédito, a entrega, o emprego ou a remessa de valores a residentes ou domiciliados no exterior como contraprestação por serviço prestado: 1,65% para o PIS/PASEP-Importação; 7,6% para a COFINS-Importação. O enunciado dispõe que é incorreto afirmar que estão incluídas como fontes de recursos para a seguridade social as contribuições sociais da receita de concurso de prognósticos e do importador de bens ou serviços do exterior, ou de quem a lei a ele equiparar. Tal disposição está em desacordo com a CF/88, conforme podemos concluir pela leitura dos artigos acima reproduzidos, tornando, portanto, falsa a presente assertiva.","region":"questoes","n":22},{"banca":"CEBRASPE - INSS - TÉCNICO DO SEGURO SOCIAL (2022)","enun":"Acerca do conceito previdenciário de empresa e de empregador doméstico e do financiamento da seguridade social, julgue os itens que se seguem. As multas e os juros moratórios constituem outras receitas da seguridade social, nas quais não se inclui a atualização monetária.","opts":null,"gab":"E","tipo":"CE","com":"A atualização monetária também constitui outras receitas da seguridade social, nos termos do art. 27, I, da Lei 8.212/91)","region":"questoes","n":23},{"banca":"CEBRASPE - INSS GEX GUARULHOS - TÉCNICO DO SEGURO SOCIA","enun":"L (2022) A respeito do financiamento da seguridade social, julgue os itens subsequentes. O percentual incidente sobre o resultado dos leilões dos bens apreendidos pelo Departamento da Receita Federal é fonte de receita da seguridade social, segundo a legislação.","opts":null,"gab":"C","tipo":"CE","com":"Assertiva correta, nos termos do Art. 27, VII, da Lei 8.212/91. Constituem outras receitas da Seguridade Social 40% do resultado dos leilões dos bens apreendidos pelo Departamento da Receita Federal.","region":"questoes","n":24},{"banca":"CESPE - Técnico do Seguro Social – 2016","enun":"A respeito do custeio da seguridade social, julgue o item que se segue. Constitui fonte de receita da seguridade social um percentual incidente sobre os valores arrecadados com os resultados dos leilões de bens apreendidos pela Receita Federal do Brasil.","opts":null,"gab":"C","tipo":"CE","com":"Assim dispõe o art. 195 da CF/88: Art. 195. A seguridade social será financiada por toda a sociedade, de forma direta e indireta, nos termos da lei, mediante recursos provenientes dos orçamentos da União, dos Estados, do Distrito Federal e dos Municípios, e das seguintes contribuições sociais: (...) Qual seria esta lei, a qual o legislador se refere? Trata-se da Lei 8.212/91. Se analisarmos o artigo 27 da referida lei, obteremos a resposta para esta questão: Lei 8.212/91: Art. 27. Constituem outras receitas da Seguridade Social: I - as multas, a atualização monetária e os juros moratórios; II - a remuneração recebida por serviços de arrecadação, fiscalização e cobrança prestados a terceiros; III - as receitas provenientes de prestação de outros serviços e de fornecimento ou arrendamento de bens; IV - as demais receitas patrimoniais, industriais e financeiras; V - as doações, legados, subvenções e outras receitas eventuais; (...) VII - 40% (quarenta por cento) do resultado dos leilões dos bens apreendidos pelo Departamento da Receita Federal; Como pode-se observar pelo inciso destacado, que a assertiva está correta.","region":"questoes","n":25},{"banca":"FCC - Procurador do Ministério Público de Contas -TCM-G","enun":"O leilão X de bens apreendidos pelo Departamento da Receita Federal teve o resultado de R$ 800.000,00. Neste caso,","opts":[["a","R$ 400.000,00 do resultado constituirá receita da Seguridade Social."],["b","R$ 320.000,00 do resultado constituirá receita da Seguridade Social."],["c","não há receita da Seguridade Social uma vez que o leilão foi realizado pelo Departamento da Receita Federal."],["d","R$ 560.000,00 do resultado constituirá receita da Seguridade Social."],["e","R$ 80.000,00 do resultado constituirá receita da Seguridade Social. 70 127"]],"gab":"B","tipo":"ME","com":"Como podemos verificar, o Art. 27, da Lei 8.212/91, prevê que 40% da receita provinda de leilões de apreensões realizadas pela Receita Federal, componham a categoria de outras receitas da Seguridade Social, portanto 800.000 x 0,4 = 320.000. Vejamos o dispositivo legal: Art. 27. Constituem outras receitas da Seguridade Social: I - as multas, a atualização monetária e os juros moratórios; II - a remuneração recebida por serviços de arrecadação, fiscalização e cobrança prestados a terceiros; III - as receitas provenientes de prestação de outros serviços e de fornecimento ou arrendamento de bens; IV - as demais receitas patrimoniais, industriais e financeiras; V - as doações, legados, subvenções e outras receitas eventuais; (...) VII - 40% (quarenta por cento) do resultado dos leilões dos bens apreendidos pelo Departamento da Receita Federal; VIII - outras receitas previstas em legislação específica. Parágrafo único. As companhias seguradoras que mantêm o seguro obrigatório de danos pessoais causados por veículos automotores de vias terrestres, de que trata a Lei nº 6.194, de dezembro de 1974, deverão repassar à Seguridade Social 50% (cinquenta por cento) do valor total do prêmio recolhido e destinado ao Sistema Único de Saúde-SUS, para custeio da assistência médico-hospitalar dos segurados vitimados em acidentes de trânsito. (Destaque Nosso). Portanto,","region":"questoes","n":26},{"banca":"Questão Inédita/Adaptada - Direito Previdenciário - 202","enun":"Além das contribuições sociais, a seguridade social conta com outras receitas. Não constituem outras receitas da seguridade social sessenta por cento do resultado dos leilões dos bens apreendidos pela Secretaria da Receita Federal do Brasil.","opts":null,"gab":"C","tipo":"CE","com":"Assertiva correta. Nos termos do art. 27, inciso VII, da Lei nº 8.212/91, apenas 40% (quarenta por cento) do resultado dos leilões dos bens apreendidos pela Secretaria da Receita Federal do Brasil constituem outras receitas da Seguridade Social. 71 127 Assim sendo, os outros 60% do resultado destes leilões não constituem receitas da seguridade social, tal qual dispõe o enunciado da questão.","region":"questoes","n":27},{"banca":"Questão Inédita/Adaptada - Direito Previdenciário - 202","enun":"A respeito do conceito e financiamento da Seguridade Social, é incorreto afirmar que, no âmbito federal, o orçamento da Seguridade Social é composto das receitas da União, das contribuições sociais e receitas de outras fontes. Entre estas e as vinculadas às ações de saúde, estão as provenientes do seguro contra Danos Pessoais causados por Veículos Automotores de Vias Terrestres - DPVAT.","opts":null,"gab":"E","tipo":"CE","com":"Assertiva incorreta. O enunciado dispõe que é incorreto afirmar que, no âmbito federal, o orçamento da Seguridade Social é composto das receitas da União, das contribuições sociais e receitas de outras fontes. Contudo, entre as receitas de outras fontes e às vinculadas às ações de saúde, estão as provenientes do seguro contra Danos Pessoais causados por Veículos Automotores de Vias Terrestres - DPVAT. Ora, como vimos, portanto, é CORRETO afirmar que, no âmbito federal, o orçamento da Seguridade Social é composto das receitas da União, das contribuições sociais e receitas de outras fontes e, dentre elas, temos as provenientes do seguro contra Danos Pessoais causados por Veículos Automotores de Vias Terrestres - DPVAT. Assim sendo, como a questão afirma que é INCORRETA tal afirmação, podemos concluir que a questão está ERRADA.","region":"questoes","n":28},{"banca":"Questão Inédita/Adaptada - Direito Previdenciário - 202","enun":"Com relação ao custeio da seguridade social, é correto afirmar que constitui receita da seguridade social 50% do resultado dos leilões dos bens apreendidos pelo departamento da Receita Federal.","opts":null,"gab":"E","tipo":"CE","com":"Assertiva incorreta. O art. 27, inciso VII, da Lei nº 8.212/91, dispõe que constituem outras receitas da Seguridade Social: ... 72 127 VII - 40% (quarenta por cento) do resultado dos leilões dos bens apreendidos pelo Departamento da Receita Federal; Tais apreensões decorrem, em regra, de contrabando ou descaminho. Considera-se contrabando a prática ilegal do transporte e comercialização de mercadorias e bens de consumo de venda proibida por lei. Considera-se descaminho a entrada ou saída de produtos permitidos, mas sem passar pelos trâmites burocrático-tributários devidos. O enunciado dispõe que constitui receita da seguridade social 50% do resultado dos leilões dos bens apreendidos pelo departamento da Receita Federal. Ora, vimos que apenas 40% do resultado dos leilões dos bens apreendidos pela Receita Federal do Brasil constitui outras receitas da Seguridade Social e não 50%, como afirma o enunciado. Por tal razão, incorreta a presente assertiva.","region":"questoes","n":29}];
+
+/* armazenamento resiliente: localStorage quando disponível, memória como reserva */
+const mem = {};
+const store = {
+  get(k){ try { return localStorage.getItem(k); } catch(e){ return mem[k] ?? null; } },
+  set(k,v){ try { localStorage.setItem(k,v); } catch(e){ mem[k]=v; } },
+  del(k){ try { localStorage.removeItem(k); } catch(e){ delete mem[k]; } }
+};
+const CH_ERR = 'inss_a03_erradas';
+
+let fila = [], pos = 0, acertos = 0, erros = 0, erradasSessao = [], respondida = false;
+
+const $ = id => document.getElementById(id);
+const telas = { inicio:$('tela-inicio'), questao:$('tela-questao'), fim:$('tela-fim') };
+
+function mostraTela(nome){
+  Object.values(telas).forEach(t => t.classList.remove('ativa'));
+  telas[nome].classList.add('ativa');
+  $('rodape').classList.remove('mostra');
+  window.scrollTo(0,0);
+}
+
+function erradasSalvas(){
+  try { return JSON.parse(store.get(CH_ERR) || '[]'); } catch(e){ return []; }
+}
+function salvaErradas(lista){ store.set(CH_ERR, JSON.stringify(lista)); }
+
+function atualizaInicio(){
+  $('st-total').textContent = QUESTOES.length;
+  $('st-ce').textContent = QUESTOES.filter(q=>q.tipo==='CE').length;
+  $('st-me').textContent = QUESTOES.filter(q=>q.tipo==='ME').length;
+  const n = erradasSalvas().length;
+  $('qt-erradas').textContent = n ? `(${n} guardadas)` : '(nenhuma ainda)';
+  $('bt-erradas').disabled = n === 0;
+}
+
+function embaralha(a){
+  for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; }
+  return a;
+}
+
+function iniciaTreino(base){
+  let lista = base.slice();
+  if($('tg-so-ce').getAttribute('aria-checked')==='true') lista = lista.filter(q=>q.tipo==='CE');
+  if(!lista.length){ lista = base.slice(); }
+  if($('tg-embaralhar').getAttribute('aria-checked')==='true') embaralha(lista);
+  fila = lista; pos = 0; acertos = 0; erros = 0; erradasSessao = [];
+  mostraTela('questao'); rende();
+}
+
+function rende(){
+  respondida = false;
+  const q = fila[pos];
+  $('pg-num').textContent = `${pos+1}/${fila.length}`;
+  $('pg-fill').style.width = `${(pos)/fila.length*100}%`;
+  $('pl-ok').textContent = acertos; $('pl-no').textContent = erros;
+  $('hdr-contador').textContent = `${pos+1} de ${fila.length}`;
+  $('q-banca').textContent = q.banca;
+  $('q-enun').textContent = q.enun;
+  $('q-fb').classList.remove('mostra');
+  $('rodape').classList.remove('mostra');
+  const carimboVelho = document.querySelector('.carimbo'); if(carimboVelho) carimboVelho.remove();
+  const opts = $('q-opts'); opts.innerHTML = '';
+  if(q.tipo==='ME'){
+    $('q-ce').style.display = 'none';
+    q.opts.forEach(([letra, texto])=>{
+      const li = document.createElement('li');
+      const b = document.createElement('button');
+      b.innerHTML = `<b>${letra})</b> <span></span>`;
+      b.querySelector('span').textContent = texto;
+      b.addEventListener('click', ()=>responde(letra.toUpperCase(), b));
+      li.appendChild(b); opts.appendChild(li);
+    });
+  } else {
+    $('q-ce').style.display = 'grid';
+  }
+}
+
+function responde(r, botaoME){
+  if(respondida) return;
+  respondida = true;
+  const q = fila[pos];
+  const acertou = r === q.gab;
+  if(acertou){ acertos++; } else { erros++; erradasSessao.push(q.n); }
+
+  /* persistência do caderno de erradas */
+  let lista = erradasSalvas();
+  if(acertou){ lista = lista.filter(n=>n!==q.n); } else if(!lista.includes(q.n)){ lista.push(q.n); }
+  salvaErradas(lista);
+
+  /* carimbo */
+  const c = document.createElement('div');
+  c.className = 'carimbo ' + (acertou?'ok':'no');
+  c.textContent = acertou ? 'Certo!' : 'Errou';
+  $('q-card').appendChild(c);
+
+  /* marca alternativas */
+  if(q.tipo==='ME'){
+    document.querySelectorAll('#q-opts button').forEach(b=>{
+      const letra = b.querySelector('b').textContent.replace(')','').toUpperCase();
+      if(letra===q.gab) b.classList.add('certa');
+      else if(b===botaoME && !acertou) b.classList.add('errada');
+      b.disabled = true;
+    });
+  }
+
+  const gabTxt = q.tipo==='CE' ? (q.gab==='C'?'CERTO':'ERRADO') : `Letra ${q.gab}`;
+  const g = $('q-gab');
+  g.className = 'gabarito ' + (acertou?'ok':'no');
+  g.textContent = (acertou?'✓ Você acertou — gabarito: ':'✗ Gabarito: ') + gabTxt;
+  const com = $('q-com');
+  com.innerHTML = '<b>Comentário do professor:</b> ';
+  com.appendChild(document.createTextNode(q.com));
+  $('q-fb').classList.add('mostra');
+  $('pl-ok').textContent = acertos; $('pl-no').textContent = erros;
+  $('pg-fill').style.width = `${(pos+1)/fila.length*100}%`;
+  $('rodape').classList.add('mostra');
+}
+
+function proxima(){
+  if(pos+1 < fila.length){ pos++; rende(); }
+  else { fimTreino(); }
+}
+
+function fimTreino(){
+  mostraTela('fim');
+  $('hdr-contador').textContent = '';
+  const total = acertos+erros;
+  const pct = total? Math.round(acertos/total*100) : 0;
+  $('fim-nota').textContent = `${acertos}/${total}`;
+  $('fim-ok').textContent = acertos; $('fim-no').textContent = erros;
+  $('fim-pct').textContent = pct+'%';
+  const frases = pct>=90 ? 'Nível banca: você está lendo a mente do examinador. 🏆'
+    : pct>=75 ? 'Muito bom! Só falta lapidar as armadilhas. 💪'
+    : pct>=50 ? 'Base sólida — agora é rodar as erradas até zerar. 🎯'
+    : 'Dia de plantio: refaça as erradas e o gráfico vira. 🌱';
+  $('fim-frase').textContent = frases;
+  $('fim-erradas').innerHTML = erradasSessao.length
+    ? `<b>Questões erradas nesta rodada:</b> ${erradasSessao.map(n=>'nº '+n).join(', ')} — elas ficaram guardadas no botão "Refazer só as que errei".`
+    : 'Nenhum erro nesta rodada. Gabaritou! ✨';
+  $('bt-refazer-erradas').disabled = erradasSessao.length===0;
+}
+
+/* ligações */
+$('bt-iniciar').addEventListener('click', ()=>iniciaTreino(QUESTOES));
+$('bt-erradas').addEventListener('click', ()=>{
+  const ns = erradasSalvas();
+  iniciaTreino(QUESTOES.filter(q=>ns.includes(q.n)));
+});
+$('bt-zerar').addEventListener('click', ()=>{
+  salvaErradas([]); atualizaInicio();
+});
+$('bt-proxima').addEventListener('click', proxima);
+$('bt-voltar').addEventListener('click', ()=>{ atualizaInicio(); mostraTela('inicio'); });
+$('bt-refazer-erradas').addEventListener('click', ()=>{
+  iniciaTreino(QUESTOES.filter(q=>erradasSessao.includes(q.n)));
+});
+document.querySelectorAll('#q-ce button').forEach(b=>{
+  b.addEventListener('click', ()=>responde(b.dataset.r, null));
+});
+document.querySelectorAll('.chave').forEach(ch=>{
+  ch.addEventListener('click', ()=>{
+    ch.setAttribute('aria-checked', ch.getAttribute('aria-checked')==='true' ? 'false' : 'true');
+  });
+});
+
+atualizaInicio();
+</script>
+</body>
+</html>
