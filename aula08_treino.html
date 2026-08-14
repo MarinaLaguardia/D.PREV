@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1"/>
+<title>INSS · Aula 08 — Regras de Transição do RGPS (EC 103/2019)</title>
+<style>
+:root{
+  --teal:#0f6e56;--teal-dk:#0d5c46;--teal-lt:#e1f5ee;
+  --amber:#b45309;--amber-lt:#fef3c7;
+  --red:#991b1b;--red-lt:#fee2e2;
+  --green:#166534;--green-lt:#dcfce7;
+  --bg:#faf9f5;--surface:#fff;--border:#e5e7eb;
+  --text:#1f2937;--muted:#6b7280;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,'Segoe UI',Roboto,sans-serif;background:var(--bg);
+  color:var(--text);min-height:100vh;padding-bottom:80px}
+.hd{background:var(--teal);color:#fff;padding:14px 18px 12px;
+  position:sticky;top:0;z-index:100;box-shadow:0 2px 8px rgba(0,0,0,.22)}
+.hd-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:9px}
+.hd h1{font-size:15px;font-weight:700;letter-spacing:.2px}
+.hd .sub{font-size:11.5px;opacity:.8;margin-top:1px}
+.hd-count{font-size:13px;opacity:.88;white-space:nowrap}
+.pb-bg{background:rgba(255,255,255,.28);border-radius:99px;height:5px;overflow:hidden}
+.pb-fill{background:#fff;height:100%;border-radius:99px;transition:width .4s ease}
+.pb-label{font-size:10.5px;opacity:.85;margin-top:3px;text-align:right}
+.ctrl{padding:10px 14px;display:flex;gap:8px;flex-wrap:wrap;
+  background:#fff;border-bottom:1px solid var(--border)}
+.btn{padding:6px 13px;border-radius:20px;border:1.5px solid var(--border);
+  background:#fff;font-size:12.5px;font-weight:500;cursor:pointer;
+  color:var(--text);transition:all .2s;white-space:nowrap}
+.btn:hover{border-color:var(--teal);color:var(--teal)}
+.btn.on{background:var(--teal);color:#fff;border-color:var(--teal)}
+.btn.danger{border-color:#dc2626;color:#dc2626}
+.btn.danger:hover{background:#dc2626;color:#fff}
+.stats{display:flex;gap:14px;padding:9px 16px;
+  background:var(--bg);border-bottom:1px solid var(--border);font-size:12.5px}
+.stat{display:flex;align-items:center;gap:5px}
+.dot{width:8px;height:8px;border-radius:50%}
+.dot-g{background:#16a34a}.dot-r{background:#dc2626}.dot-gr{background:#d1d5db}
+.cw{padding:12px 14px}
+.card{background:#fff;border-radius:14px;
+  box-shadow:0 1px 6px rgba(0,0,0,.09);overflow:hidden;position:relative}
+.card-meta{padding:9px 14px 8px;background:#f8f8f8;
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+.badge{font-size:11px;font-weight:600;padding:2px 9px;
+  border-radius:20px;letter-spacing:.2px}
+.b-num{background:var(--teal-lt);color:var(--teal)}
+.b-cespe{background:#dbeafe;color:#1e40af}
+.b-inedita{background:#f3e8ff;color:#7c3aed}
+.b-outro{background:#fef3c7;color:#92400e}
+.b-mc{background:#e0e7ff;color:#3730a3}
+.card-cargo{font-size:10.5px;color:var(--muted)}
+.card-body{padding:16px 14px}
+.enunciado{font-size:15px;line-height:1.62;color:var(--text);font-weight:400}
+.ans-row{display:flex;gap:12px;padding:12px 14px 14px}
+.ans-btn{flex:1;padding:13px;border-radius:12px;border:2px solid var(--border);
+  font-size:15px;font-weight:700;cursor:pointer;background:#fff;
+  transition:all .15s;letter-spacing:.4px}
+.ans-btn:hover:not(:disabled){transform:translateY(-2px);
+  box-shadow:0 4px 14px rgba(0,0,0,.13)}
+.ans-btn:disabled{cursor:default}
+.ans-btn.cv{border-color:#16a34a;color:#16a34a}
+.ans-btn.ce{border-color:#dc2626;color:#dc2626}
+.ans-btn.sel-ok{background:#16a34a;color:#fff;border-color:#16a34a}
+.ans-btn.sel-ng{background:#dc2626;color:#fff;border-color:#dc2626}
+.ans-btn.rev-ok{background:#dcfce7;border-color:#16a34a;color:#16a34a}
+.mc-col{display:flex;flex-direction:column;gap:9px;padding:12px 14px 14px}
+.mc-btn{display:flex;align-items:flex-start;gap:9px;text-align:left;
+  padding:11px 13px;border-radius:11px;border:2px solid var(--border);
+  font-size:13.5px;line-height:1.45;font-weight:500;cursor:pointer;
+  background:#fff;color:var(--text);transition:all .15s}
+.mc-btn:hover:not(:disabled){border-color:var(--teal);transform:translateY(-1px)}
+.mc-btn:disabled{cursor:default}
+.mc-btn .lt{font-weight:800;flex-shrink:0}
+.mc-btn.sel-ok{background:#16a34a;color:#fff;border-color:#16a34a}
+.mc-btn.sel-ng{background:#dc2626;color:#fff;border-color:#dc2626}
+.mc-btn.rev-ok{background:#dcfce7;border-color:#16a34a;color:#16a34a}
+.stamp-ov{position:absolute;top:0;left:0;right:0;bottom:0;
+  display:flex;align-items:center;justify-content:center;
+  pointer-events:none;opacity:0;transition:opacity .28s;z-index:10}
+.stamp-ov.show{opacity:1}
+.stamp{font-size:42px;font-weight:900;letter-spacing:3px;
+  transform:rotate(-20deg);border:5px solid;padding:5px 16px;
+  border-radius:6px;text-transform:uppercase;text-align:center}
+.stc{color:#16a34a;border-color:#16a34a;opacity:.58}
+.ste{color:#dc2626;border-color:#dc2626;opacity:.58}
+.fb{margin:0 14px 14px;border-radius:10px;overflow:hidden;display:none}
+.fb.show{display:block}
+.fb-hd{padding:9px 13px;font-size:12.5px;font-weight:700;
+  display:flex;align-items:center;gap:7px}
+.fb-bd{padding:10px 13px 12px;font-size:13.5px;line-height:1.58}
+.fb.ok .fb-hd{background:var(--green-lt);color:var(--green)}
+.fb.ok .fb-bd{background:#f0fdf4;color:#14532d}
+.fb.ng .fb-hd{background:var(--red-lt);color:var(--red)}
+.fb.ng .fb-bd{background:#fff5f5;color:#7f1d1d}
+.arm{color:#dc2626;font-weight:600}
+.nav-row{display:flex;gap:10px;padding:0 14px 14px}
+.nav-btn{flex:1;padding:12px;border-radius:10px;border:1.5px solid var(--border);
+  background:#fff;font-size:13.5px;font-weight:600;cursor:pointer;
+  color:var(--text);transition:all .2s}
+.nav-btn:hover{background:var(--bg)}
+.nav-btn.nx{background:var(--teal);color:#fff;border-color:var(--teal)}
+.nav-btn.nx:hover{background:var(--teal-dk)}
+.empty{text-align:center;padding:60px 20px;color:var(--muted)}
+.empty .ico{font-size:48px;margin-bottom:12px}
+.empty h3{font-size:18px;font-weight:700;margin-bottom:8px;color:var(--text)}
+.empty p{font-size:14px;line-height:1.5}
+.results{padding:24px 16px;text-align:center}
+.r-ico{font-size:56px;margin-bottom:10px}
+.results h2{font-size:22px;font-weight:800;margin-bottom:6px}
+.r-score{font-size:52px;font-weight:900;color:var(--teal);line-height:1;margin:10px 0}
+.r-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:18px 0}
+.r-stat{background:#fff;border-radius:12px;padding:14px;
+  box-shadow:0 1px 4px rgba(0,0,0,.08)}
+.r-stat .n{font-size:28px;font-weight:800}
+.r-stat .lbl{font-size:11.5px;color:var(--muted);margin-top:2px}
+.r-stat.g .n{color:#16a34a}.r-stat.r .n{color:#dc2626}
+.r-btn{display:block;width:100%;padding:14px;border-radius:12px;
+  margin-top:10px;font-size:14px;font-weight:600;cursor:pointer;border:none}
+.r-btn.main{background:var(--teal);color:#fff}
+.r-btn.sec{background:#fff;color:var(--text);border:1.5px solid var(--border)}
+@media(max-width:400px){
+  .enunciado{font-size:14px}.stamp{font-size:32px}.ans-btn{font-size:14px}
+}
+</style>
+</head>
+<body>
+<div class="hd">
+  <div class="hd-row">
+    <div>
+      <h1>INSS · Aula 08</h1>
+      <div class="sub">Regras de Transição do RGPS (EC 103/2019)</div>
+    </div>
+    <div class="hd-count" id="hdCount">1/3</div>
+  </div>
+  <div class="pb-bg"><div class="pb-fill" id="pbFill" style="width:0%"></div></div>
+  <div class="pb-label" id="pbLabel">0 de 3 respondidas</div>
+</div>
+<div class="ctrl">
+  <button class="btn on" id="bAll"    onclick="setFilter('all')">📋 Todas</button>
+  <button class="btn"    id="bCespe"  onclick="setFilter('cespe')">🎯 CESPE</button>
+  <button class="btn"    id="bErrors" onclick="setFilter('errors')">❌ Erros</button>
+  <button class="btn"    id="bShuffle" onclick="toggleShuffle()">🔀 Embaralhar</button>
+  <button class="btn danger"          onclick="resetAll()">↺ Reiniciar</button>
+</div>
+<div class="stats">
+  <div class="stat"><div class="dot dot-g"></div><span id="sC">0 acertos</span></div>
+  <div class="stat"><div class="dot dot-r"></div><span id="sE">0 erros</span></div>
+  <div class="stat"><div class="dot dot-gr"></div><span id="sR">3 restantes</span></div>
+</div>
+<div id="area"></div>
+<script>
+const KEY = 'inss_a08_erradas';
+const Q = [
+  {
+    id:1, banca:"Inédita", cargo:"Questão Inédita/2021", type:"ce",
+    e:"Júlio contribui para o RGPS há 15 anos e possui 52 anos de idade. De acordo com as regras atuais de aposentadoria, ele fará jus à aposentadoria programada ao completar 65 anos de idade e no mínimo 20 anos de contribuição.",
+    g:"C",
+    c:"Como o enunciado não menciona as regras de transição, aplica-se a regra geral: para os homens, a aposentadoria programada exige atualmente 65 anos de idade e 20 anos de contribuição — o enunciado está correto. <span class='arm'>⚠️ Atenção:</span> mesmo que Júlio, com apenas 15 anos de contribuição e tendo ingressado no RGPS antes da EC 103/19, pudesse se enquadrar na regra de transição (que exige só 15 anos de contribuição), a banca aqui cobrou apenas a regra geral. Sem menção expressa à transição no comando da questão, considere sempre a regra geral."
+  },
+  {
+    id:2, banca:"Inédita", cargo:"Questão Inédita/2021", type:"ce",
+    e:"Júlio contribui para o RGPS há 15 anos e possui 52 anos de idade. Sabendo que ele ingressou no RGPS antes da EC 103/19, podemos afirmar que, pelas regras de transição, ele poderá se aposentar ao completar 65 anos de idade, exigido o tempo mínimo de contribuição de 15 anos.",
+    g:"C",
+    c:"Diferentemente da questão anterior, aqui ficou claro que a banca está cobrando as regras de transição. Pela regra de transição da aposentadoria por idade (art. 18 da EC 103/19), os homens que se filiaram ao RGPS antes da EC 103/19 podem se aposentar com 65 anos de idade e apenas 15 anos de contribuição — e não 20, como exige a regra geral. Quem ingressou após a EC 103/19 não faz jus a essa transição, devendo cumprir os 20 anos."
+  },
+  {
+    id:3, banca:"Inédita", cargo:"Questão Inédita/2021", type:"ce",
+    e:"De acordo com uma das regras de transição previstas para o RGPS na reforma previdenciária ocorrida em 2019, um segurado que estava, na data da entrada em vigor da EC 103/19, há 3 anos de se aposentar por tempo de contribuição, poderá cumprir um pedágio de 50% do período que faltava, conseguindo se aposentar com mais 4 anos e meio de contribuição.",
+    g:"E",
+    c:"<span class='arm'>⚠️ PEGADINHA:</span> a regra do pedágio de 50% (art. 17 da EC 103/19) só é aplicável a quem estava a até 2 anos de completar o tempo de contribuição na data de entrada em vigor da EC 103/19 (ou seja, já tinha pelo menos 28 anos de contribuição, se mulher, ou 33 anos, se homem). Como o segurado do enunciado estava a 3 anos de se aposentar, ele não se enquadra nessa regra de transição — a assertiva está incorreta ao afirmar que ele poderá usar o pedágio de 50%."
+  }
+];
+let pool=[], cur=0, ans={}, nC=0, nE=0;
+let mode='all', shuf=false;
+let errs=new Set();
+function loadE(){try{const s=localStorage.getItem(KEY);if(s)errs=new Set(JSON.parse(s))}catch(e){}}
+function saveE(){try{localStorage.setItem(KEY,JSON.stringify([...errs]))}catch(e){}}
+function init(){ loadE(); apply(); }
+function apply(){
+  ans={}; nC=0; nE=0; cur=0;
+  let base=Q;
+  if(mode==='cespe') base=Q.filter(q=>q.banca==='CESPE');
+  else if(mode==='errors') base=Q.filter(q=>errs.has(q.id));
+  if(!base.length){ showEmpty(); return; }
+  pool=[...base];
+  if(shuf){ for(let i=pool.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[pool[i],pool[j]]=[pool[j],pool[i]];} }
+  updStats(); render();
+}
+function setFilter(m){
+  mode=m;
+  ['All','Cespe','Errors'].forEach(x=>{
+    const el=document.getElementById('b'+x);
+    if(el) el.classList.toggle('on', m===x.toLowerCase());
+  });
+  apply();
+}
+function toggleShuffle(){
+  shuf=!shuf;
+  const b=document.getElementById('bShuffle');
+  b.textContent=shuf?'🔀 Embaralhado ✓':'🔀 Embaralhar';
+  b.classList.toggle('on',shuf);
+  apply();
+}
+function resetAll(){ errs.clear(); saveE(); apply(); }
+function updStats(){
+  const tot=pool.length, done=nC+nE, pct=tot?Math.round(done/tot*100):0;
+  document.getElementById('pbFill').style.width=pct+'%';
+  document.getElementById('pbLabel').textContent=`${done} de ${tot} respondidas`;
+  document.getElementById('hdCount').textContent=`${Math.min(cur+1,tot)}/${tot}`;
+  document.getElementById('sC').textContent=nC+' acerto'+(nC!==1?'s':'');
+  document.getElementById('sE').textContent=nE+' erro'+(nE!==1?'s':'');
+  document.getElementById('sR').textContent=(tot-done)+' restante'+(tot-done!==1?'s':'');
+}
+function cls(opt,q,ua,done){
+  if(!done) return opt==='C'?'cv':'ce';
+  if(opt===ua) return ua===q.g?'sel-ok':'sel-ng';
+  if(opt===q.g) return 'rev-ok';
+  return opt==='C'?'cv':'ce';
+}
+function mcCls(letter,q,ua,done){
+  if(!done) return '';
+  if(letter===ua) return ua===q.g?'sel-ok':'sel-ng';
+  if(letter===q.g) return 'rev-ok';
+  return '';
+}
+function bancaBadgeCls(banca){
+  return banca==='CESPE'?'b-cespe':banca==='Inédita'?'b-inedita':'b-outro';
+}
+function render(){
+  if(cur>=pool.length){ showResults(); return; }
+  const q=pool[cur], done=ans[cur]!==undefined, ua=ans[cur];
+  const isOk=done&&ua===q.g;
+  const isMC=q.type==='mc';
+  const answerRowHtml = isMC ? `
+      <div class="mc-col">
+        ${q.opts.map((optText,i)=>{
+          const letter=String.fromCharCode(65+i);
+          return `<button class="mc-btn ${mcCls(letter,q,ua,done)}" onclick="answer('${letter}')" ${done?'disabled':''}><span class="lt">${letter})</span><span>${optText}</span></button>`;
+        }).join('')}
+      </div>` : `
+      <div class="ans-row">
+        <button class="ans-btn ${cls('C',q,ua,done)}" onclick="answer('C')" ${done?'disabled':''}>✓ CERTO</button>
+        <button class="ans-btn ${cls('E',q,ua,done)}" onclick="answer('E')" ${done?'disabled':''}>✗ ERRADO</button>
+      </div>`;
+  const stampHtml = isMC
+    ? `<div class="stamp stc">GABARITO ${q.g}</div>`
+    : `<div class="stamp ${q.g==='C'?'stc':'ste'}">${q.g==='C'?'CERTO':'ERRADO'}</div>`;
+  const gabaritoLabel = isMC ? q.g : (q.g==='C'?'CERTO':'ERRADO');
+  document.getElementById('area').innerHTML=`
+  <div class="cw">
+    <div class="card" id="card">
+      <div class="stamp-ov" id="stamp">
+        ${stampHtml}
+      </div>
+      <div class="card-meta">
+        <span class="badge b-num">Q${cur+1}</span>
+        <span class="badge ${bancaBadgeCls(q.banca)}">${q.banca}</span>
+        ${isMC?'<span class="badge b-mc">Múltipla escolha</span>':''}
+        <span class="card-cargo">${q.cargo}</span>
+      </div>
+      <div class="card-body">
+        <div class="enunciado">${q.e}</div>
+      </div>
+      ${answerRowHtml}
+      ${done?`
+      <div class="fb show ${isOk?'ok':'ng'}">
+        <div class="fb-hd">${isOk?'✅ Correto! Gabarito: ':'❌ Errado! Gabarito: '}<strong>${gabaritoLabel}</strong></div>
+        <div class="fb-bd">${q.c}</div>
+      </div>
+      <div class="nav-row">
+        ${cur>0?`<button class="nav-btn" onclick="go(${cur-1})">← Anterior</button>`:'<div></div>'}
+        ${cur<pool.length-1
+          ?`<button class="nav-btn nx" onclick="go(${cur+1})">Próxima →</button>`
+          :`<button class="nav-btn nx" onclick="showResults()">🏁 Ver resultado</button>`}
+      </div>`:''}
+    </div>
+  </div>`;
+  if(done) setTimeout(()=>{const s=document.getElementById('stamp');if(s)s.classList.add('show');},60);
+  updStats();
+}
+function answer(ch){
+  if(ans[cur]!==undefined) return;
+  const q=pool[cur];
+  ans[cur]=ch;
+  if(ch===q.g) nC++;
+  else{ nE++; errs.add(q.id); saveE(); }
+  render();
+  setTimeout(()=>{const s=document.getElementById('stamp');if(s)s.classList.add('show');},90);
+}
+function go(i){ cur=i; render(); }
+function showEmpty(){
+  document.getElementById('area').innerHTML=`
+  <div class="empty">
+    <div class="ico">📭</div>
+    <h3>Nenhuma questão aqui</h3>
+    <p>${mode==='errors'?'Sem erros registrados nesta aula. Parabéns! 🎉':'Nenhuma questão encontrada com este filtro.'}</p>
+  </div>`;
+}
+function showResults(){
+  const tot=pool.length, pct=tot?Math.round(nC/tot*100):0;
+  const ico=pct>=80?'🏆':pct>=60?'💪':'📚';
+  document.getElementById('area').innerHTML=`
+  <div class="results">
+    <div class="r-ico">${ico}</div>
+    <h2>Resultado Final</h2>
+    <p style="color:var(--muted);font-size:13.5px">INSS · Aula 08 — Regras de Transição do RGPS (EC 103/2019)</p>
+    <div class="r-score">${pct}%</div>
+    <div class="r-grid">
+      <div class="r-stat g"><div class="n">${nC}</div><div class="lbl">Acertos</div></div>
+      <div class="r-stat r"><div class="n">${nE}</div><div class="lbl">Erros</div></div>
+      <div class="r-stat"><div class="n">${tot}</div><div class="lbl">Total</div></div>
+      <div class="r-stat"><div class="n">${errs.size}</div><div class="lbl">No caderno</div></div>
+    </div>
+    ${nE>0?`<button class="r-btn main" onclick="setFilter('errors')">Refazer só os erros (${nE})</button>`:''}
+    <button class="r-btn sec" onclick="resetAll()">↺ Recomeçar do zero</button>
+  </div>`;
+  document.getElementById('pbFill').style.width='100%';
+  document.getElementById('pbLabel').textContent=`${tot} de ${tot} respondidas`;
+  updStats();
+}
+init();
+</script>
+</body>
+</html>
